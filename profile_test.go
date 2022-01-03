@@ -2,6 +2,7 @@ package feedly
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -23,7 +24,8 @@ func TestProfileGet(t *testing.T) {
 		}
 	})
 	api := NewAPI(client)
-	got, err := api.ProfileGet(nil)
+	ctx := context.Background()
+	got, err := api.ProfileGet(ctx)
 	assert.Nil(t, err)
 	assert.Equal(t, got, &test)
 }

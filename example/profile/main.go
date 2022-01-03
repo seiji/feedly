@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/seiji/feedly"
@@ -8,7 +9,8 @@ import (
 
 func main() {
 	api := feedly.NewAPI(nil)
-	profile, err := api.ProfileGet(nil)
+	ctx := context.Background()
+	profile, err := api.ProfileGet(ctx)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		return

@@ -19,11 +19,11 @@ import (
 )
 
 const (
-	version        = "v3"
-	baseURLCloud   = "https://cloud.feedly.com"
-	baseURLSandbox = "https://sandbox7.feedly.com"
+	version      = "v3"
+	baseURLCloud = "https://cloud.feedly.com"
+	// baseURLSandbox = "https://sandbox7.feedly.com"
 
-	headerDate      = "Date"
+	// headerDate      = "Date"
 	headerRateCount = "X-Ratelimit-Count"
 	headerRateLimit = "X-Ratelimit-Limit"
 	headerRateReset = "X-RateLimit-Reset"
@@ -227,14 +227,13 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
 	var res *http.Response
 	var err error
 	if c.IsCache /*&& req.Method == "GET"*/ {
-		if _, err := os.Stat(dir); err != nil {
-			err := os.Mkdir(dir, 0755)
-			if err != nil {
+		if _, err = os.Stat(dir); err != nil {
+			if err = os.Mkdir(dir, 0755); err != nil {
 				return nil, err
 			}
 		}
-		b, err := ioutil.ReadFile(p)
-		if err == nil {
+		var b []byte
+		if b, err = ioutil.ReadFile(p); err == nil {
 			res = &http.Response{
 				Body: ioutil.NopCloser(bytes.NewBuffer(b)),
 			}
@@ -242,18 +241,19 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
 	}
 
 	if res == nil {
-		res, err = c.client.Do(req)
-		if err != nil {
+		if res, err = c.client.Do(req); err != nil {
 			return nil, err
 		}
 		if c.IsCache /* && req.Method == "GET" */ {
-			out, err := os.Create(p)
-			if err != nil {
+			var out *os.File
+			if out, err = os.Create(p); err != nil {
 				return nil, err
 			}
 			defer out.Close()
 			bodyBytes, _ := ioutil.ReadAll(res.Body)
-			out.Write(bodyBytes)
+			if _, err = out.Write(bodyBytes); err != nil {
+				return nil, err
+			}
 			res.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 		}
 	}
@@ -267,7 +267,9 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
 
 	if v != nil {
 		if w, ok := v.(io.Writer); ok {
-			io.Copy(w, res.Body)
+			if _, err = io.Copy(w, res.Body); err != nil {
+				return nil, err
+			}
 			// if err = json.NewEncoder(w).Encode(v); err != nil {
 			// 	fmt.Println("aa %v", err)
 			// 	return nil, err
@@ -282,8 +284,8 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
 		}
 	} else {
 		// Debug
-		b, err := ioutil.ReadAll(res.Body)
-		if err == nil {
+		var b []byte
+		if b, err = ioutil.ReadAll(res.Body); err == nil {
 			fmt.Println(string(b))
 		}
 	}
