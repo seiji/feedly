@@ -5,7 +5,7 @@ import (
 )
 
 type APIStreams struct {
-	client *Client
+	api *apiV3
 }
 
 type StreamIds struct {
@@ -14,10 +14,10 @@ type StreamIds struct {
 }
 
 type StreamContents struct {
-	Continuation string `json:"continuation"`
-	Id           string `json:"id"`
+	Continuation string  `json:"continuation"`
+	Id           string  `json:"id"`
 	Items        []Entry `json:"items"`
-	Updated      int64  `json:"updated"`
+	Updated      int64   `json:"updated"`
 }
 
 type StreamOptions struct {
@@ -35,13 +35,13 @@ func (a *APIStreams) Ids(streamId string, opt *StreamOptions) (*StreamIds, *Resp
 		return nil, nil, err
 	}
 
-	req, err := a.client.NewRequest("GET", rel, nil)
+	req, err := a.api.NewRequest("GET", rel, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 	ids := new(StreamIds)
 
-	res, err := a.client.Do(req, ids)
+	res, err := a.api.Do(req, ids)
 	if err != nil {
 		return nil, res, err
 	}
@@ -56,13 +56,13 @@ func (a *APIStreams) Contents(streamId string, opt *StreamOptions) (*StreamConte
 		return nil, nil, err
 	}
 
-	req, err := a.client.NewRequest("GET", rel, nil)
+	req, err := a.api.NewRequest("GET", rel, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 	contents := new(StreamContents)
 
-	res, err := a.client.Do(req, contents)
+	res, err := a.api.Do(req, contents)
 	if err != nil {
 		return nil, res, err
 	}

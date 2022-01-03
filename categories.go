@@ -1,25 +1,25 @@
 package feedly
 
 type APICategories struct {
-	client *Client
+	api *apiV3
 }
 
 type Category struct {
-	Id      string  `json:"id"`
-	Label   string  `json:"label"`
+	Id    string `json:"id"`
+	Label string `json:"label"`
 }
 
 func (a *APICategories) Get() ([]Category, *Response, error) {
 	rel := "categories"
 
-	req, err := a.client.NewRequest("GET", rel, nil)
+	req, err := a.api.NewRequest("GET", rel, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	categories := new([]Category)
 
-	res, err := a.client.Do(req, categories)
+	res, err := a.api.Do(req, categories)
 	if err != nil {
 		return nil, res, err
 	}

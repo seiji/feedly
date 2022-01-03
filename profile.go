@@ -1,12 +1,13 @@
 package feedly
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 )
 
 type APIProfile struct {
-	client *Client
+	api *apiV3
 }
 
 type Login struct {
@@ -62,19 +63,19 @@ func (a Profile) String() string {
 	return string(e)
 }
 
-func (a *APIProfile) Get() (p *Profile, err error) {
+func (a *APIProfile) ProfileGet(ctx context.Context) (p *Profile, err error) {
 	var req *http.Request
-	if req, err = a.client.NewRequest("GET", "profile", nil); err != nil {
+	if req, err = a.api.NewRequest("GET", "profile", nil); err != nil {
 		return nil, err
 	}
 	p = new(Profile)
 	// var res *Response
-	if _, err = a.client.Do(req, p); err != nil {
+	if _, err = a.api.Do(req, p); err != nil {
 		return nil, err
 	}
 	return p, nil
 }
 
-func (a *APIProfile) Update() (*Profile, *Response, error) {
-	return nil, nil, nil
-}
+// func (a *APIProfile) Update() (*Profile, *Response, error) {
+// 	return nil, nil, nil
+// }

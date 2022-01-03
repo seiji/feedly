@@ -7,11 +7,8 @@ import (
 )
 
 func main() {
-	api := feedly.New(nil)
-	// var profile *feedly.Profile
-	// var res *feedly.Response
-	// var err error
-	profile, err := api.Profile.Get()
+	api := feedly.NewAPI(nil)
+	profile, err := api.ProfileGet(nil)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		return

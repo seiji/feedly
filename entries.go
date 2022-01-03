@@ -1,10 +1,7 @@
 package feedly
 
-import (
-)
-
 type APIEntries struct {
-	client *Client
+	api *apiV3
 }
 
 type Alternate struct {
@@ -53,14 +50,14 @@ type Entry struct {
 
 func (a *APIEntries) Get(entryId string) ([]Entry, *Response, error) {
 	rel := "entries/" + entryId
-	req, err := a.client.NewRequest("GET", rel, nil)
+	req, err := a.api.NewRequest("GET", rel, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	entries := new([]Entry)
 
-	res, err := a.client.Do(req, entries)
+	res, err := a.api.Do(req, entries)
 	if err != nil {
 		return nil, res, err
 	}
@@ -70,14 +67,14 @@ func (a *APIEntries) Get(entryId string) ([]Entry, *Response, error) {
 
 func (a *APIEntries) MGet(entryIds []string) ([]Entry, *Response, error) {
 	rel := "entries/.mget"
-	req, err := a.client.NewRequest("POST", rel, entryIds)
+	req, err := a.api.NewRequest("POST", rel, entryIds)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	entries := new([]Entry)
 
-	res, err := a.client.Do(req, entries)
+	res, err := a.api.Do(req, entries)
 	if err != nil {
 		return nil, res, err
 	}

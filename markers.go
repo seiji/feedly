@@ -1,7 +1,7 @@
 package feedly
 
 type APIMarkers struct {
-	client *Client
+	api *apiV3
 }
 
 type Marker struct {
@@ -16,9 +16,9 @@ type UnreadCount struct {
 }
 
 type MarkersReads struct {
-	Entries []string `json:"entries"`
+	Entries []string           `json:"entries"`
 	Feeds   []MarkersReadsFeed `json:"feeds"`
-	Updated int64    `json:"updated"`
+	Updated int64              `json:"updated"`
 }
 
 type MarkersReadsFeed struct {
@@ -33,14 +33,14 @@ type MarkersReadsOptions struct {
 func (a *APIMarkers) Counts() (*Marker, *Response, error) {
 	rel := "markers/counts"
 
-	req, err := a.client.NewRequest("GET", rel, nil)
+	req, err := a.api.NewRequest("GET", rel, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	marker := new(Marker)
 
-	res, err := a.client.Do(req, marker)
+	res, err := a.api.Do(req, marker)
 	if err != nil {
 		return nil, res, err
 	}
@@ -55,14 +55,14 @@ func (a *APIMarkers) Reads(opt *MarkersReadsOptions) (*MarkersReads, *Response, 
 		return nil, nil, err
 	}
 
-	req, err := a.client.NewRequest("GET", rel, nil)
+	req, err := a.api.NewRequest("GET", rel, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	markersReads := new(MarkersReads)
 
-	res, err := a.client.Do(req, markersReads)
+	res, err := a.api.Do(req, markersReads)
 	if err != nil {
 		return nil, res, err
 	}

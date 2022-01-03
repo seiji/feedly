@@ -2,6 +2,7 @@ package feedly
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -62,17 +63,21 @@ const (
 	RESOURCE_TAG
 )
 
-type Client struct {
+type API interface {
+	ProfileGet(ctx context.Context) (*Profile, error)
+}
+
+type apiV3 struct {
 	client     *http.Client
 	BaseURL    *url.URL
 	UserAgent  string
 	OAuthToken string
 	IsCache    bool
 	// API
-	Categories    *APICategories
-	Entries       *APIEntries
-	Markers       *APIMarkers
-	Profile       *APIProfile
+	Categories *APICategories
+	Entries    *APIEntries
+	Markers    *APIMarkers
+	*APIProfile
 	Streams       *APIStreams
 	Subscriptions *APISubscriptions
 }
@@ -105,7 +110,7 @@ func ResourceId(t ResourceType, userId, identifier string) string {
 	return id
 }
 
-func New(httpClient *http.Client) *Client {
+func NewAPI(httpClient *http.Client) API {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
@@ -113,21 +118,33 @@ func New(httpClient *http.Client) *Client {
 	baseURL, _ := url.Parse(baseURLCloud)
 	baseURL.Path = version
 
-	c := &Client{client: httpClient, BaseURL: baseURL}
-	c.OAuthToken = os.Getenv("FEEDLY_ACCESS_TOKEN")
+	api := &apiV3{
+		client:        httpClient,
+		BaseURL:       baseURL,
+		UserAgent:     "",
+		OAuthToken:    "",
+		IsCache:       false,
+		Categories:    &APICategories{},
+		Entries:       &APIEntries{},
+		Markers:       &APIMarkers{},
+		APIProfile:    &APIProfile{},
+		Streams:       &APIStreams{},
+		Subscriptions: &APISubscriptions{},
+	}
+	api.OAuthToken = os.Getenv("FEEDLY_ACCESS_TOKEN")
 
-	c.IsCache = false
-	c.Categories = &APICategories{client: c}
-	c.Entries = &APIEntries{client: c}
-	c.Markers = &APIMarkers{client: c}
-	c.Profile = &APIProfile{client: c}
-	c.Streams = &APIStreams{client: c}
-	c.Subscriptions = &APISubscriptions{client: c}
+	api.IsCache = false
+	api.Categories = &APICategories{api: api}
+	api.Entries = &APIEntries{api: api}
+	api.Markers = &APIMarkers{api: api}
+	api.APIProfile = &APIProfile{api: api}
+	api.Streams = &APIStreams{api: api}
+	api.Subscriptions = &APISubscriptions{api: api}
 
-	return c
+	return api
 }
 
-func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
+func (c *apiV3) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
 	rel, err := url.Parse(version + "/" + urlStr)
 	if err != nil {
 		return nil, err
@@ -194,7 +211,7 @@ func newResponse(res *http.Response) *Response {
 	return r
 }
 
-func (c *Client) Do(req *http.Request, v interface{}) (*Response, error) {
+func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
 	rawPath := req.URL.RawPath
 	if rawPath == "" {
 		rawPath = req.URL.Path
