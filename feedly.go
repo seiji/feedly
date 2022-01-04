@@ -65,6 +65,7 @@ const (
 
 type API interface {
 	ProfileGet(ctx context.Context) (*Profile, error)
+	TagsGet(ctx context.Context) (Tags, error)
 }
 
 type apiV3 struct {
@@ -74,12 +75,12 @@ type apiV3 struct {
 	OAuthToken string
 	IsCache    bool
 	// API
-	Categories *APICategories
-	Entries    *APIEntries
-	Markers    *APIMarkers
+	Entries *APIEntries
+	Markers *APIMarkers
 	*APIProfile
 	Streams       *APIStreams
 	Subscriptions *APISubscriptions
+	*APITags
 }
 
 type Rate struct {
@@ -124,7 +125,6 @@ func NewAPI(httpClient *http.Client) API {
 		UserAgent:     "",
 		OAuthToken:    "",
 		IsCache:       false,
-		Categories:    &APICategories{},
 		Entries:       &APIEntries{},
 		Markers:       &APIMarkers{},
 		APIProfile:    &APIProfile{},
@@ -134,10 +134,10 @@ func NewAPI(httpClient *http.Client) API {
 	api.OAuthToken = os.Getenv("FEEDLY_ACCESS_TOKEN")
 
 	api.IsCache = false
-	api.Categories = &APICategories{api: api}
 	api.Entries = &APIEntries{api: api}
 	api.Markers = &APIMarkers{api: api}
 	api.APIProfile = &APIProfile{api: api}
+	api.APITags = &APITags{api: api}
 	api.Streams = &APIStreams{api: api}
 	api.Subscriptions = &APISubscriptions{api: api}
 

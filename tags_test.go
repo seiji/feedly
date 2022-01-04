@@ -12,9 +12,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestProfileGet(t *testing.T) {
-	expected := Profile{
-		Email: "test@example.com",
+func TestTagsGet(t *testing.T) {
+	expected := Tags{
+		{
+			ID:          "user/xxx/tag/global.saved",
+			Label:       "",
+			Description: "",
+		},
 	}
 	client := NewTestClient(func(req *http.Request) *http.Response {
 		b, _ := json.Marshal(expected)
@@ -37,7 +41,7 @@ func TestProfileGet(t *testing.T) {
 	})
 	api := NewAPI(client)
 	ctx := context.Background()
-	actual, err := api.ProfileGet(ctx)
+	actual, err := api.TagsGet(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, &expected, actual)
+	assert.Equal(t, expected, actual)
 }
