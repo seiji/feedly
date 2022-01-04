@@ -1,5 +1,11 @@
 package feedly
 
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+)
+
 type APIMarkers struct {
 	api *apiV3
 }
@@ -7,6 +13,14 @@ type APIMarkers struct {
 type Marker struct {
 	UnreadCounts []UnreadCount `json:"unreadcounts"`
 	Updated      int64         `json:"updated"`
+}
+
+func (a Marker) String() string {
+	e, err := json.Marshal(a)
+	if err != nil {
+		panic(err)
+	}
+	return string(e)
 }
 
 type UnreadCount struct {
@@ -21,6 +35,14 @@ type MarkersReads struct {
 	Updated int64              `json:"updated"`
 }
 
+func (a MarkersReads) String() string {
+	e, err := json.Marshal(a)
+	if err != nil {
+		panic(err)
+	}
+	return string(e)
+}
+
 type MarkersReadsFeed struct {
 	Id   string `json:"id"`
 	AsOf int64  `json:"asOf"`
@@ -30,42 +52,31 @@ type MarkersReadsOptions struct {
 	NewerThan int64 `url:"newerThan,omitempty"`
 }
 
-func (a *APIMarkers) Counts() (*Marker, *Response, error) {
-	rel := "markers/counts"
-
-	req, err := a.api.NewRequest("GET", rel, nil)
-	if err != nil {
-		return nil, nil, err
+func (a *APIMarkers) MarkersCounts(ctx context.Context) (marker *Marker, err error) {
+	var req *http.Request
+	if req, err = a.api.NewRequest("GET", "markers/counts", nil); err != nil {
+		return nil, err
 	}
-
-	marker := new(Marker)
-
-	res, err := a.api.Do(req, marker)
-	if err != nil {
-		return nil, res, err
+	marker = new(Marker)
+	if _, err := a.api.Do(req, marker); err != nil {
+		return nil, err
 	}
-
-	return marker, res, nil
+	return marker, nil
 }
 
-func (a *APIMarkers) Reads(opt *MarkersReadsOptions) (*MarkersReads, *Response, error) {
+func (a *APIMarkers) MarkersReads(ctx context.Context, opt *MarkersReadsOptions) (markersRead *MarkersReads, err error) {
+	var req *http.Request
 	rel := "markers/reads"
-	rel, err := addOptions(rel, opt)
-	if err != nil {
-		return nil, nil, err
+	if rel, err = addOptions(rel, opt); err != nil {
+		return nil, err
 	}
-
-	req, err := a.api.NewRequest("GET", rel, nil)
-	if err != nil {
-		return nil, nil, err
+	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
+		return nil, err
 	}
-
 	markersReads := new(MarkersReads)
-
-	res, err := a.api.Do(req, markersReads)
-	if err != nil {
-		return nil, res, err
+	if _, err := a.api.Do(req, markersReads); err != nil {
+		return nil, err
 	}
 
-	return markersReads, res, nil
+	return markersReads, nil
 }

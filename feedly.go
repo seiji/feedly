@@ -64,8 +64,10 @@ const (
 )
 
 type API interface {
+	MarkersCounts(ctx context.Context) (*Marker, error)
+	MarkersReads(ctx context.Context, opt *MarkersReadsOptions) (*MarkersReads, error)
 	ProfileGet(ctx context.Context) (*Profile, error)
-	SubscriptionGet(ctx context.Context) (Subscriptions, error)
+	SubscriptionsGet(ctx context.Context) (Subscriptions, error)
 	TagsGet(ctx context.Context) (Tags, error)
 }
 
@@ -77,7 +79,7 @@ type apiV3 struct {
 	IsCache    bool
 	// API
 	Entries *APIEntries
-	Markers *APIMarkers
+	*APIMarkers
 	*APIProfile
 	Streams *APIStreams
 	*APISubscriptions
@@ -127,7 +129,6 @@ func NewAPI(httpClient *http.Client) API {
 		OAuthToken: "",
 		IsCache:    false,
 		Entries:    &APIEntries{},
-		Markers:    &APIMarkers{},
 		APIProfile: &APIProfile{},
 		Streams:    &APIStreams{},
 	}
@@ -135,7 +136,7 @@ func NewAPI(httpClient *http.Client) API {
 
 	api.IsCache = false
 	api.Entries = &APIEntries{api: api}
-	api.Markers = &APIMarkers{api: api}
+	api.APIMarkers = &APIMarkers{api: api}
 	api.APIProfile = &APIProfile{api: api}
 	api.APITags = &APITags{api: api}
 	api.Streams = &APIStreams{api: api}
