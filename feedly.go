@@ -73,7 +73,7 @@ type API interface {
 	StreamsContents(context.Context, string, *StreamOptions) (*StreamContents, error)
 	StreamsIDs(context.Context, string, *StreamOptions) (*StreamIDs, error)
 	SubscriptionsGet(ctx context.Context) (Subscriptions, error)
-	TagsGet(ctx context.Context) (Tags, error)
+	TagsList(ctx context.Context) (Tags, error)
 }
 
 type apiV3 struct {
@@ -124,16 +124,21 @@ func NewAPI(httpClient *http.Client) API {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
-
 	baseURL, _ := url.Parse(baseURLCloud)
 	baseURL.Path = version
-
 	api := &apiV3{
-		client:     httpClient,
-		BaseURL:    baseURL,
-		UserAgent:  "",
-		OAuthToken: "",
-		IsCache:    false,
+		client:           httpClient,
+		BaseURL:          baseURL,
+		UserAgent:        "",
+		OAuthToken:       "",
+		IsCache:          false,
+		APIEntries:       &APIEntries{},
+		APIFeeds:         &APIFeeds{},
+		APIMarkers:       &APIMarkers{},
+		APIProfile:       &APIProfile{},
+		APIStreams:       &APIStreams{},
+		APISubscriptions: &APISubscriptions{},
+		APITags:          &APITags{},
 	}
 	api.OAuthToken = os.Getenv("FEEDLY_ACCESS_TOKEN")
 
