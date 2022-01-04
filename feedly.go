@@ -65,6 +65,7 @@ const (
 
 type API interface {
 	ProfileGet(ctx context.Context) (*Profile, error)
+	SubscriptionGet(ctx context.Context) (Subscriptions, error)
 	TagsGet(ctx context.Context) (Tags, error)
 }
 
@@ -78,8 +79,8 @@ type apiV3 struct {
 	Entries *APIEntries
 	Markers *APIMarkers
 	*APIProfile
-	Streams       *APIStreams
-	Subscriptions *APISubscriptions
+	Streams *APIStreams
+	*APISubscriptions
 	*APITags
 }
 
@@ -120,16 +121,15 @@ func NewAPI(httpClient *http.Client) API {
 	baseURL.Path = version
 
 	api := &apiV3{
-		client:        httpClient,
-		BaseURL:       baseURL,
-		UserAgent:     "",
-		OAuthToken:    "",
-		IsCache:       false,
-		Entries:       &APIEntries{},
-		Markers:       &APIMarkers{},
-		APIProfile:    &APIProfile{},
-		Streams:       &APIStreams{},
-		Subscriptions: &APISubscriptions{},
+		client:     httpClient,
+		BaseURL:    baseURL,
+		UserAgent:  "",
+		OAuthToken: "",
+		IsCache:    false,
+		Entries:    &APIEntries{},
+		Markers:    &APIMarkers{},
+		APIProfile: &APIProfile{},
+		Streams:    &APIStreams{},
 	}
 	api.OAuthToken = os.Getenv("FEEDLY_ACCESS_TOKEN")
 
@@ -139,7 +139,7 @@ func NewAPI(httpClient *http.Client) API {
 	api.APIProfile = &APIProfile{api: api}
 	api.APITags = &APITags{api: api}
 	api.Streams = &APIStreams{api: api}
-	api.Subscriptions = &APISubscriptions{api: api}
+	api.APISubscriptions = &APISubscriptions{api: api}
 
 	return api
 }

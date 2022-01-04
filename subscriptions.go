@@ -1,5 +1,12 @@
 package feedly
 
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"strings"
+)
+
 type APISubscriptions struct {
 	api *apiV3
 }
@@ -19,20 +26,32 @@ type Subscription struct {
 	Website     string     `json:"website"`
 }
 
-func (a *APISubscriptions) Get() ([]Subscription, *Response, error) {
-	rel := "subscriptions"
-
-	req, err := a.api.NewRequest("GET", rel, nil)
+func (a Subscription) String() string {
+	e, err := json.Marshal(a)
 	if err != nil {
-		return nil, nil, err
+		panic(err)
+	}
+	return string(e)
+}
+
+type Subscriptions []Subscription
+
+func (a Subscriptions) String() string {
+	s := make([]string, len(a))
+	for i, v := range a {
+		s[i] = v.String()
+	}
+	return "[" + strings.Join(s, ",") + "]"
+}
+
+func (a *APISubscriptions) SubscriptionGet(ctx context.Context) (subscriptions Subscriptions, err error) {
+	var req *http.Request
+	if req, err = a.api.NewRequest("GET", "subscriptions", nil); err != nil {
+		return nil, err
 	}
 
-	subscriptions := new([]Subscription)
-
-	res, err := a.api.Do(req, subscriptions)
-	if err != nil {
-		return nil, res, err
+	if _, err = a.api.Do(req, &subscriptions); err != nil {
+		return nil, err
 	}
-
-	return *subscriptions, res, nil
+	return subscriptions, nil
 }
