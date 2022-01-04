@@ -64,6 +64,7 @@ const (
 )
 
 type API interface {
+	EntriesGet(ctx context.Context, entryID string) (Entries, error)
 	MarkersCounts(ctx context.Context) (*Marker, error)
 	MarkersReads(ctx context.Context, opt *MarkersReadsOptions) (*MarkersReads, error)
 	ProfileGet(ctx context.Context) (*Profile, error)
@@ -78,7 +79,7 @@ type apiV3 struct {
 	OAuthToken string
 	IsCache    bool
 	// API
-	Entries *APIEntries
+	*APIEntries
 	*APIMarkers
 	*APIProfile
 	Streams *APIStreams
@@ -128,14 +129,12 @@ func NewAPI(httpClient *http.Client) API {
 		UserAgent:  "",
 		OAuthToken: "",
 		IsCache:    false,
-		Entries:    &APIEntries{},
-		APIProfile: &APIProfile{},
 		Streams:    &APIStreams{},
 	}
 	api.OAuthToken = os.Getenv("FEEDLY_ACCESS_TOKEN")
 
 	api.IsCache = false
-	api.Entries = &APIEntries{api: api}
+	api.APIEntries = &APIEntries{api: api}
 	api.APIMarkers = &APIMarkers{api: api}
 	api.APIProfile = &APIProfile{api: api}
 	api.APITags = &APITags{api: api}

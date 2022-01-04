@@ -7,13 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSubscriptionssGet(t *testing.T) {
+func TestSubscriptionsGet(t *testing.T) {
 	expected := Subscriptions{
 		{
 			Categories:  []Category{},
 			ContentType: "",
 			IconUrl:     "",
-			Id:          "feed/https://example.com.com/rss/feed/",
+			ID:          "feed/https://example.com.com/rss/feed/",
 			Partial:     false,
 			Subscribers: 0,
 			Title:       "",

@@ -1,5 +1,12 @@
 package feedly
 
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"strings"
+)
+
 type APIEntries struct {
 	api *apiV3
 }
@@ -37,7 +44,7 @@ type Entry struct {
 	Engagement     int64       `json:"engagement"`
 	EngagementRate float64     `json:"engagementRate"`
 	Fingerprint    string      `json:"fingerprint"`
-	Id             string      `json:"id"`
+	ID             string      `json:"id"`
 	Keywords       []string    `json:"keywords"`
 	Origin         *Origin     `json:"origin"`
 	OriginId       string      `json:"originId"`
@@ -48,21 +55,33 @@ type Entry struct {
 	Visual         *Visual     `json:"visual"`
 }
 
-func (a *APIEntries) Get(entryId string) ([]Entry, *Response, error) {
-	rel := "entries/" + entryId
-	req, err := a.api.NewRequest("GET", rel, nil)
+func (a Entry) String() string {
+	e, err := json.Marshal(a)
 	if err != nil {
-		return nil, nil, err
+		panic(err)
 	}
+	return string(e)
+}
 
-	entries := new([]Entry)
+type Entries []Entry
 
-	res, err := a.api.Do(req, entries)
-	if err != nil {
-		return nil, res, err
+func (a Entries) String() string {
+	s := make([]string, len(a))
+	for i, v := range a {
+		s[i] = v.String()
 	}
+	return "[" + strings.Join(s, ",") + "]"
+}
 
-	return *entries, res, nil
+func (a *APIEntries) EntriesGet(ctx context.Context, entryID string) (entries Entries, err error) {
+	var req *http.Request
+	if req, err = a.api.NewRequest("GET", "entries/"+entryID, nil); err != nil {
+		return nil, err
+	}
+	if _, err := a.api.Do(req, &entries); err != nil {
+		return nil, err
+	}
+	return entries, nil
 }
 
 func (a *APIEntries) MGet(entryIds []string) ([]Entry, *Response, error) {

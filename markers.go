@@ -25,7 +25,7 @@ func (a Marker) String() string {
 
 type UnreadCount struct {
 	Count   int    `json:"count"`
-	Id      string `json:"id"`
+	ID      string `json:"id"`
 	Updated int64  `json:"updated"`
 }
 
@@ -44,7 +44,7 @@ func (a MarkersReads) String() string {
 }
 
 type MarkersReadsFeed struct {
-	Id   string `json:"id"`
+	ID   string `json:"id"`
 	AsOf int64  `json:"asOf"`
 }
 

@@ -15,7 +15,7 @@ type Subscription struct {
 	Categories  []Category `json:"categories"`
 	ContentType string     `json:"contentType"`
 	IconUrl     string     `json:"iconUrl"`
-	Id          string     `json:"id"`
+	ID          string     `json:"id"`
 	Partial     bool       `json:"partial"`
 	Subscribers float64    `json:"subscribers"`
 	Title       string     `json:"title"`
