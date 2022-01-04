@@ -68,6 +68,8 @@ type API interface {
 	MarkersCounts(ctx context.Context) (*Marker, error)
 	MarkersReads(ctx context.Context, opt *MarkersReadsOptions) (*MarkersReads, error)
 	ProfileGet(ctx context.Context) (*Profile, error)
+	StreamsContents(context.Context, string, *StreamOptions) (*StreamContents, error)
+	StreamsIDs(context.Context, string, *StreamOptions) (*StreamIDs, error)
 	SubscriptionsGet(ctx context.Context) (Subscriptions, error)
 	TagsGet(ctx context.Context) (Tags, error)
 }
@@ -82,7 +84,7 @@ type apiV3 struct {
 	*APIEntries
 	*APIMarkers
 	*APIProfile
-	Streams *APIStreams
+	*APIStreams
 	*APISubscriptions
 	*APITags
 }
@@ -129,7 +131,6 @@ func NewAPI(httpClient *http.Client) API {
 		UserAgent:  "",
 		OAuthToken: "",
 		IsCache:    false,
-		Streams:    &APIStreams{},
 	}
 	api.OAuthToken = os.Getenv("FEEDLY_ACCESS_TOKEN")
 
@@ -138,7 +139,7 @@ func NewAPI(httpClient *http.Client) API {
 	api.APIMarkers = &APIMarkers{api: api}
 	api.APIProfile = &APIProfile{api: api}
 	api.APITags = &APITags{api: api}
-	api.Streams = &APIStreams{api: api}
+	api.APIStreams = &APIStreams{api: api}
 	api.APISubscriptions = &APISubscriptions{api: api}
 
 	return api
