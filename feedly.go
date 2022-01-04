@@ -64,16 +64,19 @@ const (
 )
 
 type API interface {
-	EntriesGet(ctx context.Context, entryID string) (Entries, error)
-	FeedsGet(ctx context.Context, feedID string) (*Feed, error)
-	FeedsMGet(ctx context.Context, feedIDs []string) (Feeds, error)
-	MarkersCounts(ctx context.Context) (*Marker, error)
-	MarkersReads(ctx context.Context, opt *MarkersReadsOptions) (*MarkersReads, error)
-	ProfileGet(ctx context.Context) (*Profile, error)
+	CollectionsCreate(context.Context, *CollectionCreate) error
+	CollectionsGet(context.Context, string) (Collections, error)
+	CollectionsList(context.Context) (Collections, error)
+	EntriesGet(context.Context, string) (Entries, error)
+	FeedsGet(context.Context, string) (*Feed, error)
+	FeedsMGet(context.Context, []string) (Feeds, error)
+	MarkersCounts(context.Context) (*Marker, error)
+	MarkersReads(context.Context, *MarkersReadsOptions) (*MarkersReads, error)
+	ProfileGet(context.Context) (*Profile, error)
 	StreamsContents(context.Context, string, *StreamOptions) (*StreamContents, error)
 	StreamsIDs(context.Context, string, *StreamOptions) (*StreamIDs, error)
-	SubscriptionsGet(ctx context.Context) (Subscriptions, error)
-	TagsList(ctx context.Context) (Tags, error)
+	SubscriptionsGet(context.Context) (Subscriptions, error)
+	TagsList(context.Context) (Tags, error)
 }
 
 type apiV3 struct {
@@ -83,6 +86,7 @@ type apiV3 struct {
 	OAuthToken string
 	IsCache    bool
 	// API
+	*APICollections
 	*APIEntries
 	*APIFeeds
 	*APIMarkers
@@ -132,6 +136,7 @@ func NewAPI(httpClient *http.Client) API {
 		UserAgent:        "",
 		OAuthToken:       "",
 		IsCache:          false,
+		APICollections:   &APICollections{},
 		APIEntries:       &APIEntries{},
 		APIFeeds:         &APIFeeds{},
 		APIMarkers:       &APIMarkers{},
@@ -143,6 +148,7 @@ func NewAPI(httpClient *http.Client) API {
 	api.OAuthToken = os.Getenv("FEEDLY_ACCESS_TOKEN")
 
 	api.IsCache = false
+	api.APICollections = &APICollections{api: api}
 	api.APIEntries = &APIEntries{api: api}
 	api.APIFeeds = &APIFeeds{api: api}
 	api.APIMarkers = &APIMarkers{api: api}
@@ -185,6 +191,7 @@ func (c *apiV3) NewRequest(method, urlStr string, body interface{}) (*http.Reque
 		}
 	}
 	req, err := http.NewRequest(method, u.String(), buf)
+	// fmt.Printf("%s", buf)
 	if err != nil {
 		return nil, err
 	}

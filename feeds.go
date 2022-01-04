@@ -13,17 +13,21 @@ type APIFeeds struct {
 }
 
 type Feed struct {
-	ID          string   `json:"id"`
-	Title       string   `json:"title"`
-	Topics      []string `json:"topics"`
-	Language    string   `json:"language"`
-	Website     string   `json:"website"`
-	Velocity    float64  `json:"velocity"`
-	Featured    bool     `json:"featured"`
-	Sponsored   bool     `json:"sponsored"`
-	Curated     bool     `json:"curated"`
-	Subscribers int64    `json:"subscribers"`
-	State       string   `json:"alive"`
+	ContentType         string   `json:"contentType"`
+	Description         string   `json:"description"`
+	EstimatedEngagement float64  `json:"estimatedEngagement"`
+	FeedId              string   `json:"feedId"`
+	IconUrl             string   `json:"iconUrl"`
+	ID                  string   `json:"id"`
+	Language            string   `json:"language"`
+	Partial             bool     `json:"partial"`
+	Subscribers         float64  `json:"subscribers"`
+	Title               string   `json:"title"`
+	Topics              []string `json:"topics"`
+	Updated             float64  `json:"updated"`
+	Velocity            float64  `json:"velocity"`
+	VisualUrl           string   `json:"visualUrl"`
+	Website             string   `json:"website"`
 }
 
 func (a Feed) String() string {

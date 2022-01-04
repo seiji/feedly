@@ -37,7 +37,7 @@ type Profile struct {
 	Gender                      string                 `json:"gender"`
 	GivenName                   string                 `json:"givenName"`
 	Google                      string                 `json:"google"`
-	Id                          string                 `json:"id"`
+	ID                          string                 `json:"id"`
 	Locale                      string                 `json:"locale"`
 	Logins                      []Login                `json:"logins"`
 	PaymentProviderId           *PaymentProviderId     `json:"paymentProviderId"`

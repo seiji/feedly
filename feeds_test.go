@@ -9,19 +9,7 @@ import (
 
 func TestFeedsGet(t *testing.T) {
 	id := "feed/http://feeds.engadget.com/weblogsinc/engadget"
-	expected := Feed{
-		ID:          id,
-		Title:       "",
-		Topics:      []string{},
-		Language:    "",
-		Website:     "",
-		Velocity:    0,
-		Featured:    false,
-		Sponsored:   false,
-		Curated:     false,
-		Subscribers: 0,
-		State:       "",
-	}
+	expected := Feed{ID: id}
 	client := NewTestClient(expected)
 	api := NewAPI(client)
 	ctx := context.Background()
@@ -32,21 +20,7 @@ func TestFeedsGet(t *testing.T) {
 
 func TestFeedsMGet(t *testing.T) {
 	id := "feed/http://feeds.engadget.com/weblogsinc/engadget"
-	expected := Feeds{
-		{
-			ID:          id,
-			Title:       "",
-			Topics:      []string{},
-			Language:    "",
-			Website:     "",
-			Velocity:    0,
-			Featured:    false,
-			Sponsored:   false,
-			Curated:     false,
-			Subscribers: 0,
-			State:       "",
-		},
-	}
+	expected := Feeds{{ID: id}}
 	client := NewTestClient(expected)
 	api := NewAPI(client)
 	ctx := context.Background()
