@@ -65,6 +65,8 @@ const (
 
 type API interface {
 	EntriesGet(ctx context.Context, entryID string) (Entries, error)
+	FeedsGet(ctx context.Context, feedID string) (*Feed, error)
+	FeedsMGet(ctx context.Context, feedIDs []string) (Feeds, error)
 	MarkersCounts(ctx context.Context) (*Marker, error)
 	MarkersReads(ctx context.Context, opt *MarkersReadsOptions) (*MarkersReads, error)
 	ProfileGet(ctx context.Context) (*Profile, error)
@@ -82,6 +84,7 @@ type apiV3 struct {
 	IsCache    bool
 	// API
 	*APIEntries
+	*APIFeeds
 	*APIMarkers
 	*APIProfile
 	*APIStreams
@@ -136,6 +139,7 @@ func NewAPI(httpClient *http.Client) API {
 
 	api.IsCache = false
 	api.APIEntries = &APIEntries{api: api}
+	api.APIFeeds = &APIFeeds{api: api}
 	api.APIMarkers = &APIMarkers{api: api}
 	api.APIProfile = &APIProfile{api: api}
 	api.APITags = &APITags{api: api}
@@ -171,8 +175,7 @@ func (c *apiV3) NewRequest(method, urlStr string, body interface{}) (*http.Reque
 	var buf io.ReadWriter
 	if body != nil {
 		buf = new(bytes.Buffer)
-		err = json.NewEncoder(buf).Encode(body)
-		if err != nil {
+		if err = json.NewEncoder(buf).Encode(body); err != nil {
 			return nil, err
 		}
 	}
@@ -184,11 +187,9 @@ func (c *apiV3) NewRequest(method, urlStr string, body interface{}) (*http.Reque
 	if c.OAuthToken != "" {
 		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.OAuthToken))
 	}
-
 	if c.UserAgent != "" {
 		req.Header.Add("User-Agent", c.UserAgent)
 	}
-
 	return req, nil
 }
 
