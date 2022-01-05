@@ -14,7 +14,7 @@ func TestCollectionsCreate(t *testing.T) {
 	ctx := context.Background()
 	err := api.CollectionsCreate(ctx, &CollectionCreate{
 		Description: "",
-		Feeds: []CollectionCreateFeed{
+		Feeds: []CollectionFeedCreate{
 			{
 				ID:    "feed/http://feeds.feedburner.com/design-milk",
 				Title: "",
@@ -22,6 +22,26 @@ func TestCollectionsCreate(t *testing.T) {
 		},
 		ID:    id,
 		Label: "",
+	})
+	assert.Nil(t, err)
+}
+
+func TestCollectionsDelete(t *testing.T) {
+	id := "user/af190c49-0ac8-4f08-9f83-805f1a3bc142/category/c805fcbf-3acf-4302-a97e-d82f9d7c897f"
+	client := NewTestClient(struct{}{})
+	api := NewAPI(client)
+	ctx := context.Background()
+	err := api.CollectionsFeedsDelete(ctx, id, "feed/http://feeds.feedburner.com/design-milk")
+	assert.Nil(t, err)
+}
+
+func TestCollectionsMDelete(t *testing.T) {
+	id := "user/af190c49-0ac8-4f08-9f83-805f1a3bc142/category/c805fcbf-3acf-4302-a97e-d82f9d7c897f"
+	client := NewTestClient(struct{}{})
+	api := NewAPI(client)
+	ctx := context.Background()
+	err := api.CollectionsFeedsMDelete(ctx, id, CollectionFeedDeletes{
+		{ID: "feed/http://feeds.feedburner.com/design-milk"},
 	})
 	assert.Nil(t, err)
 }

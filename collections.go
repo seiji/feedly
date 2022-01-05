@@ -43,20 +43,50 @@ func (a Collections) String() string {
 
 type CollectionCreate struct {
 	Description string                 `json:"description"`
-	Feeds       []CollectionCreateFeed `json:"feeds"`
+	Feeds       []CollectionFeedCreate `json:"feeds"`
 	ID          string                 `json:"id"`
 	Label       string                 `json:"label"`
 }
 
-type CollectionCreateFeed struct {
+type CollectionFeedCreate struct {
 	ID    string `json:"id"`
 	Title string `json:"title"`
 }
+
+type CollectionFeedDelete struct {
+	ID string `json:"id"`
+}
+
+type CollectionFeedDeletes []CollectionFeedDelete
 
 func (a *APICollections) CollectionsCreate(ctx context.Context, param *CollectionCreate) (err error) {
 	var req *http.Request
 	rel := "collections"
 	if req, err = a.api.NewRequest("POST", rel, param); err != nil {
+		return err
+	}
+	if _, err = a.api.Do(req, ioutil.Discard); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a *APICollections) CollectionsFeedsDelete(ctx context.Context, collectionID, feedID string) (err error) {
+	var req *http.Request
+	rel := "collections/" + url.QueryEscape(collectionID) + "/feeds/" + url.QueryEscape(feedID)
+	if req, err = a.api.NewRequest("DELETE", rel, nil); err != nil {
+		return err
+	}
+	if _, err = a.api.Do(req, ioutil.Discard); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a *APICollections) CollectionsFeedsMDelete(ctx context.Context, collectionID string, param CollectionFeedDeletes) (err error) {
+	var req *http.Request
+	rel := "collections/" + url.QueryEscape(collectionID) + "/feeds/.mdelete"
+	if req, err = a.api.NewRequest("DELETE", rel, param); err != nil {
 		return err
 	}
 	if _, err = a.api.Do(req, ioutil.Discard); err != nil {

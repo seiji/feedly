@@ -17,6 +17,11 @@ func main() {
 	}
 	cid := fmt.Sprintf("user/%s/category/Feedly", profile.ID)
 	var collections feedly.Collections
+	if err = api.CollectionsFeedsMDelete(ctx, cid, feedly.CollectionFeedDeletes{
+		{ID: "feed/http://feeds.feedburner.com/design-milk"},
+	}); err != nil {
+		panic(err)
+	}
 	if collections, err = api.CollectionsGet(ctx, cid); err != nil {
 		panic(err)
 	}

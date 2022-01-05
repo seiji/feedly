@@ -17,6 +17,18 @@ func main() {
 	}
 	cid := fmt.Sprintf("user/%s/category/Feedly", profile.ID)
 	var collections feedly.Collections
+	if err = api.CollectionsCreate(ctx, &feedly.CollectionCreate{
+		Description: "from ci",
+		Feeds: []feedly.CollectionFeedCreate{
+			{
+				ID: "feed/http://feeds.feedburner.com/design-milk",
+			},
+		},
+		ID:    cid,
+		Label: "Feedly",
+	}); err != nil {
+		panic(err)
+	}
 	if collections, err = api.CollectionsGet(ctx, cid); err != nil {
 		panic(err)
 	}

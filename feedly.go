@@ -65,6 +65,8 @@ const (
 
 type API interface {
 	CollectionsCreate(context.Context, *CollectionCreate) error
+	CollectionsFeedsDelete(context.Context, string, string) error
+	CollectionsFeedsMDelete(context.Context, string, CollectionFeedDeletes) error
 	CollectionsGet(context.Context, string) (Collections, error)
 	CollectionsList(context.Context) (Collections, error)
 	EntriesGet(context.Context, string) (Entries, error)
