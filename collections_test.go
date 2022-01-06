@@ -14,14 +14,9 @@ func TestCollectionsCreate(t *testing.T) {
 	ctx := context.Background()
 	err := api.CollectionsCreate(ctx, &CollectionCreate{
 		Description: "",
-		Feeds: []CollectionFeedCreate{
-			{
-				ID:    "feed/http://feeds.feedburner.com/design-milk",
-				Title: "",
-			},
-		},
-		ID:    id,
-		Label: "",
+		Feeds:       []CollectionFeedCreate{{ID: "feed/http://feeds.feedburner.com/design-milk", Title: ""}},
+		ID:          id,
+		Label:       "",
 	})
 	assert.Nil(t, err)
 }
