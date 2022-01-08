@@ -9,16 +9,26 @@ import (
 
 func TestCollectionsCreate(t *testing.T) {
 	id := "user/af190c49-0ac8-4f08-9f83-805f1a3bc142/category/c805fcbf-3acf-4302-a97e-d82f9d7c897f"
-	client := NewTestClient(struct{}{})
+	expected := Collections{{
+		Customizable: false,
+		Description:  "",
+		Enterprise:   false,
+		Feeds:        []Feed{{ID: "feed/http://feeds.feedburner.com/design-milk", Title: ""}},
+		ID:           id,
+		Label:        "",
+		NumFeeds:     1,
+	}}
+	client := NewTestClient(expected)
 	api := NewAPI(client)
 	ctx := context.Background()
-	err := api.CollectionsCreate(ctx, &CollectionCreate{
+	collections, err := api.CollectionsCreate(ctx, &CollectionCreate{
 		Description: "",
 		Feeds:       []CollectionFeedCreate{{ID: "feed/http://feeds.feedburner.com/design-milk", Title: ""}},
 		ID:          id,
-		Label:       "",
+		Label:       "Feedly",
 	})
 	assert.Nil(t, err)
+	assert.Equal(t, 1, len(collections))
 }
 
 func TestCollectionsDelete(t *testing.T) {

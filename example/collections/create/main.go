@@ -15,9 +15,10 @@ func main() {
 	if profile, err = api.ProfileGet(ctx); err != nil {
 		panic(err)
 	}
-	cid := fmt.Sprintf("user/%s/category/Feedly", profile.ID)
+	label := "Feedly"
+	cid := fmt.Sprintf("user/%s/category/%s", profile.ID, label)
 	var collections feedly.Collections
-	if err = api.CollectionsCreate(ctx, &feedly.CollectionCreate{
+	if collections, err = api.CollectionsCreate(ctx, &feedly.CollectionCreate{
 		Description: "from ci",
 		Feeds: []feedly.CollectionFeedCreate{
 			{
@@ -25,11 +26,8 @@ func main() {
 			},
 		},
 		ID:    cid,
-		Label: "Feedly",
+		Label: label,
 	}); err != nil {
-		panic(err)
-	}
-	if collections, err = api.CollectionsGet(ctx, cid); err != nil {
 		panic(err)
 	}
 	fmt.Printf("%s", collections)

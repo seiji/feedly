@@ -42,7 +42,7 @@ func (a Collections) String() string {
 }
 
 type CollectionCreate struct {
-	Description string                 `json:"description"`
+	Description string                 `json:"description,omitempty"`
 	Feeds       []CollectionFeedCreate `json:"feeds"`
 	ID          string                 `json:"id"`
 	Label       string                 `json:"label"`
@@ -59,62 +59,62 @@ type CollectionFeedDelete struct {
 
 type CollectionFeedDeletes []CollectionFeedDelete
 
-func (a *APICollections) CollectionsCreate(ctx context.Context, param *CollectionCreate) (err error) {
+func (a *APICollections) CollectionsCreate(ctx context.Context, param *CollectionCreate) (collections Collections, err error) {
 	var req *http.Request
 	rel := "collections"
 	if req, err = a.api.NewRequest("POST", rel, param); err != nil {
-		return err
+		return
 	}
-	if _, err = a.api.Do(req, ioutil.Discard); err != nil {
-		return err
+	if _, err = a.api.Do(req, &collections); err != nil {
+		return
 	}
-	return nil
+	return
 }
 
 func (a *APICollections) CollectionsFeedsDelete(ctx context.Context, collectionID, feedID string) (err error) {
 	var req *http.Request
 	rel := "collections/" + url.QueryEscape(collectionID) + "/feeds/" + url.QueryEscape(feedID)
 	if req, err = a.api.NewRequest("DELETE", rel, nil); err != nil {
-		return err
+		return
 	}
 	if _, err = a.api.Do(req, ioutil.Discard); err != nil {
-		return err
+		return
 	}
-	return nil
+	return
 }
 
 func (a *APICollections) CollectionsFeedsMDelete(ctx context.Context, collectionID string, param CollectionFeedDeletes) (err error) {
 	var req *http.Request
 	rel := "collections/" + url.QueryEscape(collectionID) + "/feeds/.mdelete"
 	if req, err = a.api.NewRequest("DELETE", rel, param); err != nil {
-		return err
+		return
 	}
 	if _, err = a.api.Do(req, ioutil.Discard); err != nil {
-		return err
+		return
 	}
-	return nil
+	return
 }
 
 func (a *APICollections) CollectionsGet(ctx context.Context, collectionID string) (collections Collections, err error) {
 	var req *http.Request
 	rel := "collections/" + url.QueryEscape(collectionID)
 	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
-		return nil, err
+		return
 	}
 	if _, err = a.api.Do(req, &collections); err != nil {
-		return nil, err
+		return
 	}
-	return collections, nil
+	return
 }
 
 func (a *APICollections) CollectionsList(ctx context.Context) (collections Collections, err error) {
 	var req *http.Request
 	if req, err = a.api.NewRequest("GET", "collections", nil); err != nil {
-		return nil, err
+		return
 	}
 
 	if _, err = a.api.Do(req, &collections); err != nil {
-		return nil, err
+		return
 	}
-	return collections, nil
+	return
 }

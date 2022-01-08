@@ -12,17 +12,17 @@ type APIProfile struct {
 
 type Login struct {
 	FullName   string `json:"fullName"`
-	Id         string `json:"id"`
+	ID         string `json:"id"`
 	Picture    string `json:"picture"`
 	Provider   string `json:"provider"`
-	ProviderId string `json:"providerId"`
+	ProviderID string `json:"providerId"`
 	Verified   bool   `json:"verified"`
 }
-type PaymentProviderId struct {
+type PaymentProviderID struct {
 	Paypal string `json:"Paypal"`
 }
 
-type PaymentSubscriptionId struct {
+type PaymentSubscriptionID struct {
 	Paypal string `json:"Paypal"`
 }
 
@@ -40,8 +40,8 @@ type Profile struct {
 	ID                          string                 `json:"id"`
 	Locale                      string                 `json:"locale"`
 	Logins                      []Login                `json:"logins"`
-	PaymentProviderId           *PaymentProviderId     `json:"paymentProviderId"`
-	PaymentSubscriptionId       *PaymentSubscriptionId `json:"paymentSubscriptionId"`
+	PaymentProviderID           *PaymentProviderID     `json:"paymentProviderId"`
+	PaymentSubscriptionID       *PaymentSubscriptionID `json:"paymentSubscriptionId"`
 	Picture                     string                 `json:"picture"`
 	PocketConnected             bool                   `json:"pocketConnected"`
 	Product                     string                 `json:"product"`

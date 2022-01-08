@@ -15,7 +15,7 @@ func main() {
 	if profile, err = api.ProfileGet(ctx); err != nil {
 		panic(err)
 	}
-	cid := fmt.Sprintf("user/%s/category/Feedly", profile.ID)
+	cid := fmt.Sprintf("user/%s/category/News", profile.ID)
 	var collections feedly.Collections
 	if collections, err = api.CollectionsGet(ctx, cid); err != nil {
 		panic(err)

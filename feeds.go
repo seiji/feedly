@@ -16,7 +16,7 @@ type Feed struct {
 	ContentType         string   `json:"contentType"`
 	Description         string   `json:"description"`
 	EstimatedEngagement float64  `json:"estimatedEngagement"`
-	FeedId              string   `json:"feedId"`
+	FeedID              string   `json:"feedId"`
 	IconUrl             string   `json:"iconUrl"`
 	ID                  string   `json:"id"`
 	Language            string   `json:"language"`
