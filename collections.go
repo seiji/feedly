@@ -50,7 +50,7 @@ type CollectionCreate struct {
 
 type CollectionFeedCreate struct {
 	ID    string `json:"id"`
-	Title string `json:"title"`
+	Title string `json:"title,omitempty"`
 }
 
 type CollectionFeedDelete struct {
