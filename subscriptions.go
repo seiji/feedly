@@ -14,7 +14,7 @@ type APISubscriptions struct {
 type Subscription struct {
 	Categories  []Category `json:"categories"`
 	ContentType string     `json:"contentType"`
-	IconUrl     string     `json:"iconUrl"`
+	IconURL     string     `json:"iconUrl"`
 	ID          string     `json:"id"`
 	Partial     bool       `json:"partial"`
 	Subscribers float64    `json:"subscribers"`
@@ -22,7 +22,7 @@ type Subscription struct {
 	Topics      []string   `json:"topics"`
 	Updated     float64    `json:"updated"`
 	Velocity    float64    `json:"velocity"`
-	VisualUrl   string     `json:"visualUrl"`
+	VisualURL   string     `json:"visualUrl"`
 	Website     string     `json:"website"`
 }
 

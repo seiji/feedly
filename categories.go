@@ -1,6 +1,6 @@
 package feedly
 
 type Category struct {
-	Id    string `json:"id"`
+	ID    string `json:"id"`
 	Label string `json:"label"`
 }

@@ -17,7 +17,7 @@ type Feed struct {
 	Description         string   `json:"description"`
 	EstimatedEngagement float64  `json:"estimatedEngagement"`
 	FeedID              string   `json:"feedId"`
-	IconUrl             string   `json:"iconUrl"`
+	IconURL             string   `json:"iconUrl"`
 	ID                  string   `json:"id"`
 	Language            string   `json:"language"`
 	Partial             bool     `json:"partial"`
@@ -26,7 +26,7 @@ type Feed struct {
 	Topics              []string `json:"topics"`
 	Updated             float64  `json:"updated"`
 	Velocity            float64  `json:"velocity"`
-	VisualUrl           string   `json:"visualUrl"`
+	VisualURL           string   `json:"visualUrl"`
 	Website             string   `json:"website"`
 }
 

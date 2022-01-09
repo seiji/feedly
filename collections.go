@@ -59,7 +59,10 @@ type CollectionFeedDelete struct {
 
 type CollectionFeedDeletes []CollectionFeedDelete
 
-func (a *APICollections) CollectionsCreate(ctx context.Context, param *CollectionCreate) (collections Collections, err error) {
+func (a *APICollections) CollectionsCreate(ctx context.Context, param *CollectionCreate) (
+	collections Collections,
+	err error,
+) {
 	var req *http.Request
 	rel := "collections"
 	if req, err = a.api.NewRequest("POST", rel, param); err != nil {
@@ -71,9 +74,9 @@ func (a *APICollections) CollectionsCreate(ctx context.Context, param *Collectio
 	return
 }
 
-func (a *APICollections) CollectionsFeedsDelete(ctx context.Context, collectionID, feedID string) (err error) {
+func (a *APICollections) CollectionsFeedsDelete(ctx context.Context, id, feedID string) (err error) {
 	var req *http.Request
-	rel := "collections/" + url.QueryEscape(collectionID) + "/feeds/" + url.QueryEscape(feedID)
+	rel := "collections/" + url.QueryEscape(id) + "/feeds/" + url.QueryEscape(feedID)
 	if req, err = a.api.NewRequest("DELETE", rel, nil); err != nil {
 		return
 	}
@@ -83,9 +86,11 @@ func (a *APICollections) CollectionsFeedsDelete(ctx context.Context, collectionI
 	return
 }
 
-func (a *APICollections) CollectionsFeedsMDelete(ctx context.Context, collectionID string, param CollectionFeedDeletes) (err error) {
+func (a *APICollections) CollectionsFeedsMDelete(ctx context.Context, id string, param CollectionFeedDeletes) (
+	err error,
+) {
 	var req *http.Request
-	rel := "collections/" + url.QueryEscape(collectionID) + "/feeds/.mdelete"
+	rel := "collections/" + url.QueryEscape(id) + "/feeds/.mdelete"
 	if req, err = a.api.NewRequest("DELETE", rel, param); err != nil {
 		return
 	}
@@ -95,9 +100,9 @@ func (a *APICollections) CollectionsFeedsMDelete(ctx context.Context, collection
 	return
 }
 
-func (a *APICollections) CollectionsGet(ctx context.Context, collectionID string) (collections Collections, err error) {
+func (a *APICollections) CollectionsGet(ctx context.Context, id string) (collections Collections, err error) {
 	var req *http.Request
-	rel := "collections/" + url.QueryEscape(collectionID)
+	rel := "collections/" + url.QueryEscape(id)
 	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
 		return
 	}
@@ -112,7 +117,6 @@ func (a *APICollections) CollectionsList(ctx context.Context) (collections Colle
 	if req, err = a.api.NewRequest("GET", "collections", nil); err != nil {
 		return
 	}
-
 	if _, err = a.api.Do(req, &collections); err != nil {
 		return
 	}

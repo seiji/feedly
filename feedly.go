@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -32,24 +34,24 @@ const (
 type GlobalResource int
 
 const (
-	GLOBAL_MUST GlobalResource = 1 << iota
-	GLOBAL_ALL
-	GLOBAL_UNCATEGORIZED
-	GLOBAL_READ
-	GLOBAL_SAVED
+	GlobalMust GlobalResource = 1 << iota
+	GlobalAll
+	GlobalUncategorized
+	GlobalRead
+	GlobalSaved
 )
 
 func (t GlobalResource) String() string {
 	switch t {
-	case GLOBAL_MUST:
+	case GlobalMust:
 		return "user/%s/category/global.must"
-	case GLOBAL_ALL:
+	case GlobalAll:
 		return "user/%s/category/global.all"
-	case GLOBAL_UNCATEGORIZED:
+	case GlobalUncategorized:
 		return "user/%s/category/global.uncategorized"
-	case GLOBAL_READ:
+	case GlobalRead:
 		return "user/%s/tag/global.read"
-	case GLOBAL_SAVED:
+	case GlobalSaved:
 		return "user/%s/tag/global.saved"
 	}
 	return ""
@@ -58,9 +60,9 @@ func (t GlobalResource) String() string {
 type ResourceType int
 
 const (
-	RESOURCE_FEED ResourceType = 1 << iota
-	RESOURCE_CATEGORY
-	RESOURCE_TAG
+	ResourceFeed ResourceType = 1 << iota
+	ResourceCategory
+	ResourceTag
 )
 
 type API interface {
@@ -106,24 +108,23 @@ type Rate struct {
 
 type Response struct {
 	response *http.Response
-	Rate
+	Rate     *Rate
 }
 
-func GlobalResourceId(t GlobalResource, userId string) string {
-	return fmt.Sprintf(t.String(), userId)
+func GlobalResourceID(t GlobalResource, userID string) string {
+	return fmt.Sprintf(t.String(), userID)
 }
 
-func ResourceId(t ResourceType, userId, identifier string) string {
-	id := ""
+func ResourceID(t ResourceType, userID, identifier string) (id string) {
 	switch t {
-	case RESOURCE_FEED:
+	case ResourceFeed:
 		id = fmt.Sprintf("feed/%s", identifier)
-	case RESOURCE_CATEGORY:
-		id = fmt.Sprintf("user/%s/category/%s", userId, identifier)
-	case RESOURCE_TAG:
-		id = fmt.Sprintf("user/%s/tag/%s", userId, identifier)
+	case ResourceCategory:
+		id = fmt.Sprintf("user/%s/category/%s", userID, identifier)
+	case ResourceTag:
+		id = fmt.Sprintf("user/%s/tag/%s", userID, identifier)
 	}
-	return id
+	return
 }
 
 func NewAPI(httpClient *http.Client) API {
@@ -208,8 +209,7 @@ func (c *apiV3) NewRequest(method, urlStr string, body interface{}) (*http.Reque
 }
 
 func newResponse(res *http.Response) *Response {
-	r := &Response{response: res}
-
+	r := &Response{response: res, Rate: &Rate{}}
 	if count := res.Header.Get(headerRateCount); count != "" {
 		r.Rate.Count, _ = strconv.Atoi(count)
 	}
@@ -217,9 +217,12 @@ func newResponse(res *http.Response) *Response {
 		r.Rate.Limit, _ = strconv.Atoi(limit)
 	}
 	if reset := res.Header.Get(headerRateReset); reset != "" {
-		if v, _ := strconv.ParseInt(reset, 10, 64); v != 0 {
+		const base = 10
+		const bitSize = 64
+		if v, _ := strconv.ParseInt(reset, base, bitSize); v != 0 {
 			if t, err := time.Parse(http.TimeFormat, res.Header.Get("Date")); err == nil {
-				r.Rate.Reset = t.Add(time.Duration(v * 1000000000))
+				const num = 1000000000
+				r.Rate.Reset = t.Add(time.Duration(v * num))
 			}
 		}
 	}
@@ -228,23 +231,22 @@ func newResponse(res *http.Response) *Response {
 }
 
 func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
-	rawPath := req.URL.RawPath
-	if rawPath == "" {
+	var rawPath, dir, base, q string
+	if rawPath = req.URL.RawPath; rawPath == "" {
 		rawPath = req.URL.Path
 	}
-	dir := "./" + path.Dir(rawPath)
-	base := path.Base(rawPath)
-	q := req.URL.RawQuery
-	if q != "" {
+	dir = "./" + path.Dir(rawPath)
+	base = path.Base(rawPath)
+	if q = req.URL.RawQuery; q != "" {
 		q = "?" + q
 	}
 	p := path.Join(dir, base+url.QueryEscape(q)+".json")
-
 	var res *http.Response
 	var err error
 	if c.IsCache /*&& req.Method == "GET"*/ {
 		if _, err = os.Stat(dir); err != nil {
-			if err = os.Mkdir(dir, 0755); err != nil {
+			const perm = 0755
+			if err = os.Mkdir(dir, perm); err != nil {
 				return nil, err
 			}
 		}
@@ -255,9 +257,9 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
 			}
 		}
 	}
-
 	if res == nil {
 		if res, err = c.client.Do(req); err != nil {
+			defer res.Body.Close()
 			return nil, err
 		}
 		if c.IsCache /* && req.Method == "GET" */ {
@@ -273,12 +275,10 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
 			res.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 		}
 	}
-
 	defer res.Body.Close()
-	if res.StatusCode >= 400 {
+	if res.StatusCode >= http.StatusBadRequest {
 		return nil, fmt.Errorf("bad response status code %d", res.StatusCode)
 	}
-
 	response := newResponse(res)
 
 	if v != nil {
@@ -290,10 +290,9 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
 			// 	fmt.Println("aa %v", err)
 			// 	return nil, err
 			// }
-
 		} else {
 			err = json.NewDecoder(res.Body).Decode(v)
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				err = nil // ignore EOF errors caused by empty response body
 			}
 			// fmt.Printf("%v", v)
@@ -302,10 +301,9 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
 		// Debug
 		var b []byte
 		if b, err = ioutil.ReadAll(res.Body); err == nil {
-			fmt.Println(string(b))
+			log.Println(string(b))
 		}
 	}
-
 	return response, err
 }
 

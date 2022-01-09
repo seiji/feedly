@@ -12,7 +12,7 @@ func TestSubscriptionsGet(t *testing.T) {
 		{
 			Categories:  []Category{},
 			ContentType: "",
-			IconUrl:     "",
+			IconURL:     "",
 			ID:          "feed/https://example.com.com/rss/feed/",
 			Partial:     false,
 			Subscribers: 0,
@@ -20,7 +20,7 @@ func TestSubscriptionsGet(t *testing.T) {
 			Topics:      []string{},
 			Updated:     0,
 			Velocity:    0,
-			VisualUrl:   "",
+			VisualURL:   "",
 			Website:     "",
 		},
 	}

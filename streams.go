@@ -47,34 +47,40 @@ type StreamOptions struct {
 	Continuation string `url:"continuation,omitempty"`
 }
 
-func (a *APIStreams) StreamsContents(ctx context.Context, streamId string, opt *StreamOptions) (streamContents *StreamContents, err error) {
-	rel := "streams/" + url.QueryEscape(streamId) + "/contents"
+func (a *APIStreams) StreamsContents(ctx context.Context, id string, opt *StreamOptions) (
+	streamContents *StreamContents,
+	err error,
+) {
+	rel := "streams/" + url.QueryEscape(id) + "/contents"
 	if rel, err = addOptions(rel, opt); err != nil {
-		return nil, err
+		return
 	}
 	var req *http.Request
 	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
-		return nil, err
+		return
 	}
 	streamContents = new(StreamContents)
-	if _, err := a.api.Do(req, streamContents); err != nil {
-		return nil, err
+	if _, err = a.api.Do(req, streamContents); err != nil {
+		return
 	}
-	return streamContents, nil
+	return
 }
 
-func (a *APIStreams) StreamsIDs(ctx context.Context, streamId string, opt *StreamOptions) (streamIDs *StreamIDs, err error) {
-	rel := "streams/" + url.QueryEscape(streamId) + "/ids"
+func (a *APIStreams) StreamsIDs(ctx context.Context, id string, opt *StreamOptions) (
+	streamIDs *StreamIDs,
+	err error,
+) {
+	rel := "streams/" + url.QueryEscape(id) + "/ids"
 	if rel, err = addOptions(rel, opt); err != nil {
-		return nil, err
+		return
 	}
 	var req *http.Request
 	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
-		return nil, err
+		return
 	}
 	streamIDs = new(StreamIDs)
-	if _, err := a.api.Do(req, streamIDs); err != nil {
-		return nil, err
+	if _, err = a.api.Do(req, streamIDs); err != nil {
+		return
 	}
-	return streamIDs, nil
+	return
 }

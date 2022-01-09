@@ -22,7 +22,7 @@ func TestEntriesGet(t *testing.T) {
 			ID:             id,
 			Keywords:       []string{},
 			Origin:         &Origin{},
-			OriginId:       "",
+			OriginID:       "",
 			Published:      0,
 			Title:          "",
 			Unread:         false,

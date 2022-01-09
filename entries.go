@@ -22,8 +22,8 @@ type Content struct {
 }
 
 type Origin struct {
-	HtmlUrl  string `json:"htmlUrl"`
-	StreamId string `json:"streamId"`
+	HTMLURL  string `json:"htmlUrl"`
+	StreamID string `json:"streamId"`
 	Title    string `json:"title"`
 }
 
@@ -31,7 +31,7 @@ type Visual struct {
 	ContentType string  `json:"contentType"`
 	Height      float64 `json:"height"`
 	Processor   string  `json:"processor"`
-	Url         string  `json:"url"`
+	URL         string  `json:"url"`
 	Width       float64 `json:"width"`
 }
 
@@ -47,7 +47,7 @@ type Entry struct {
 	ID             string      `json:"id"`
 	Keywords       []string    `json:"keywords"`
 	Origin         *Origin     `json:"origin"`
-	OriginId       string      `json:"originId"`
+	OriginID       string      `json:"originId"`
 	Published      int64       `json:"published"`
 	Title          string      `json:"title"`
 	Unread         bool        `json:"unread"`
