@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type APIFeeds struct {
+type apiFeeds struct {
 	api *apiV3
 }
 
@@ -48,7 +48,7 @@ func (a Feeds) String() string {
 	return "[" + strings.Join(s, ",") + "]"
 }
 
-func (a *APIFeeds) FeedsGet(ctx context.Context, feedID string) (feed *Feed, err error) {
+func (a *apiFeeds) FeedsGet(ctx context.Context, feedID string) (feed *Feed, err error) {
 	var req *http.Request
 	rel := "feeds/" + url.QueryEscape(feedID)
 	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
@@ -61,7 +61,7 @@ func (a *APIFeeds) FeedsGet(ctx context.Context, feedID string) (feed *Feed, err
 	return feed, nil
 }
 
-func (a *APIFeeds) FeedsMGet(ctx context.Context, feedIDs []string) (feeds Feeds, err error) {
+func (a *apiFeeds) FeedsMGet(ctx context.Context, feedIDs []string) (feeds Feeds, err error) {
 	var req *http.Request
 	rel := "feeds/.mget"
 	if req, err = a.api.NewRequest("POST", rel, feedIDs); err != nil {

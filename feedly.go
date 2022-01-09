@@ -90,14 +90,14 @@ type apiV3 struct {
 	OAuthToken string
 	IsCache    bool
 	// API
-	*APICollections
-	*APIEntries
-	*APIFeeds
-	*APIMarkers
-	*APIProfile
-	*APIStreams
-	*APISubscriptions
-	*APITags
+	*apiCollections
+	*apiEntries
+	*apiFeeds
+	*apiMarkers
+	*apiProfile
+	*apiStreams
+	*apiSubscriptions
+	*apiTags
 }
 
 type Rate struct {
@@ -139,26 +139,26 @@ func NewAPI(httpClient *http.Client) API {
 		UserAgent:        "",
 		OAuthToken:       "",
 		IsCache:          false,
-		APICollections:   &APICollections{},
-		APIEntries:       &APIEntries{},
-		APIFeeds:         &APIFeeds{},
-		APIMarkers:       &APIMarkers{},
-		APIProfile:       &APIProfile{},
-		APIStreams:       &APIStreams{},
-		APISubscriptions: &APISubscriptions{},
-		APITags:          &APITags{},
+		apiCollections:   &apiCollections{},
+		apiEntries:       &apiEntries{},
+		apiFeeds:         &apiFeeds{},
+		apiMarkers:       &apiMarkers{},
+		apiProfile:       &apiProfile{},
+		apiStreams:       &apiStreams{},
+		apiSubscriptions: &apiSubscriptions{},
+		apiTags:          &apiTags{},
 	}
 	api.OAuthToken = os.Getenv("FEEDLY_ACCESS_TOKEN")
 
 	api.IsCache = false
-	api.APICollections = &APICollections{api: api}
-	api.APIEntries = &APIEntries{api: api}
-	api.APIFeeds = &APIFeeds{api: api}
-	api.APIMarkers = &APIMarkers{api: api}
-	api.APIProfile = &APIProfile{api: api}
-	api.APITags = &APITags{api: api}
-	api.APIStreams = &APIStreams{api: api}
-	api.APISubscriptions = &APISubscriptions{api: api}
+	api.apiCollections = &apiCollections{api: api}
+	api.apiEntries = &apiEntries{api: api}
+	api.apiFeeds = &apiFeeds{api: api}
+	api.apiMarkers = &apiMarkers{api: api}
+	api.apiProfile = &apiProfile{api: api}
+	api.apiTags = &apiTags{api: api}
+	api.apiStreams = &apiStreams{api: api}
+	api.apiSubscriptions = &apiSubscriptions{api: api}
 
 	return api
 }

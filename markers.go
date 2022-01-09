@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type APIMarkers struct {
+type apiMarkers struct {
 	api *apiV3
 }
 
@@ -52,7 +52,7 @@ type MarkersReadsOptions struct {
 	NewerThan int64 `url:"newerThan,omitempty"`
 }
 
-func (a *APIMarkers) MarkersCounts(ctx context.Context) (marker *Marker, err error) {
+func (a *apiMarkers) MarkersCounts(ctx context.Context) (marker *Marker, err error) {
 	var req *http.Request
 	if req, err = a.api.NewRequest("GET", "markers/counts", nil); err != nil {
 		return
@@ -64,7 +64,7 @@ func (a *APIMarkers) MarkersCounts(ctx context.Context) (marker *Marker, err err
 	return
 }
 
-func (a *APIMarkers) MarkersReads(ctx context.Context, opt *MarkersReadsOptions) (
+func (a *apiMarkers) MarkersReads(ctx context.Context, opt *MarkersReadsOptions) (
 	markersReads *MarkersReads,
 	err error,
 ) {

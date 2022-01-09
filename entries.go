@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type APIEntries struct {
+type apiEntries struct {
 	api *apiV3
 }
 
@@ -73,7 +73,7 @@ func (a Entries) String() string {
 	return "[" + strings.Join(s, ",") + "]"
 }
 
-func (a *APIEntries) EntriesGet(ctx context.Context, entryID string) (entries Entries, err error) {
+func (a *apiEntries) EntriesGet(ctx context.Context, entryID string) (entries Entries, err error) {
 	var req *http.Request
 	if req, err = a.api.NewRequest("GET", "entries/"+entryID, nil); err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (a *APIEntries) EntriesGet(ctx context.Context, entryID string) (entries En
 	return entries, nil
 }
 
-func (a *APIEntries) MGet(entryIds []string) ([]Entry, *Response, error) {
+func (a *apiEntries) MGet(entryIds []string) ([]Entry, *Response, error) {
 	rel := "entries/.mget"
 	req, err := a.api.NewRequest("POST", rel, entryIds)
 	if err != nil {

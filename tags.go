@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type APITags struct {
+type apiTags struct {
 	api *apiV3
 }
 
@@ -35,7 +35,7 @@ func (a Tags) String() string {
 	return "[" + strings.Join(s, ",") + "]"
 }
 
-func (a *APITags) TagsList(ctx context.Context) (tags Tags, err error) {
+func (a *apiTags) TagsList(ctx context.Context) (tags Tags, err error) {
 	var req *http.Request
 	if req, err = a.api.NewRequest("GET", "tags", nil); err != nil {
 		return nil, err

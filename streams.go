@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-type APIStreams struct {
+type apiStreams struct {
 	api *apiV3
 }
 
@@ -47,7 +47,7 @@ type StreamOptions struct {
 	Continuation string `url:"continuation,omitempty"`
 }
 
-func (a *APIStreams) StreamsContents(ctx context.Context, id string, opt *StreamOptions) (
+func (a *apiStreams) StreamsContents(ctx context.Context, id string, opt *StreamOptions) (
 	streamContents *StreamContents,
 	err error,
 ) {
@@ -66,7 +66,7 @@ func (a *APIStreams) StreamsContents(ctx context.Context, id string, opt *Stream
 	return
 }
 
-func (a *APIStreams) StreamsIDs(ctx context.Context, id string, opt *StreamOptions) (
+func (a *apiStreams) StreamsIDs(ctx context.Context, id string, opt *StreamOptions) (
 	streamIDs *StreamIDs,
 	err error,
 ) {

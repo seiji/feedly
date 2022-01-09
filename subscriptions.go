@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type APISubscriptions struct {
+type apiSubscriptions struct {
 	api *apiV3
 }
 
@@ -44,7 +44,7 @@ func (a Subscriptions) String() string {
 	return "[" + strings.Join(s, ",") + "]"
 }
 
-func (a *APISubscriptions) SubscriptionsGet(ctx context.Context) (subscriptions Subscriptions, err error) {
+func (a *apiSubscriptions) SubscriptionsGet(ctx context.Context) (subscriptions Subscriptions, err error) {
 	var req *http.Request
 	if req, err = a.api.NewRequest("GET", "subscriptions", nil); err != nil {
 		return nil, err

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-type APICollections struct {
+type apiCollections struct {
 	api *apiV3
 }
 
@@ -59,7 +59,7 @@ type CollectionFeedDelete struct {
 
 type CollectionFeedDeletes []CollectionFeedDelete
 
-func (a *APICollections) CollectionsCreate(ctx context.Context, param *CollectionCreate) (
+func (a *apiCollections) CollectionsCreate(ctx context.Context, param *CollectionCreate) (
 	collections Collections,
 	err error,
 ) {
@@ -74,7 +74,7 @@ func (a *APICollections) CollectionsCreate(ctx context.Context, param *Collectio
 	return
 }
 
-func (a *APICollections) CollectionsFeedsDelete(ctx context.Context, id, feedID string) (err error) {
+func (a *apiCollections) CollectionsFeedsDelete(ctx context.Context, id, feedID string) (err error) {
 	var req *http.Request
 	rel := "collections/" + url.QueryEscape(id) + "/feeds/" + url.QueryEscape(feedID)
 	if req, err = a.api.NewRequest("DELETE", rel, nil); err != nil {
@@ -86,7 +86,7 @@ func (a *APICollections) CollectionsFeedsDelete(ctx context.Context, id, feedID 
 	return
 }
 
-func (a *APICollections) CollectionsFeedsMDelete(ctx context.Context, id string, param CollectionFeedDeletes) (
+func (a *apiCollections) CollectionsFeedsMDelete(ctx context.Context, id string, param CollectionFeedDeletes) (
 	err error,
 ) {
 	var req *http.Request
@@ -100,7 +100,7 @@ func (a *APICollections) CollectionsFeedsMDelete(ctx context.Context, id string,
 	return
 }
 
-func (a *APICollections) CollectionsGet(ctx context.Context, id string) (collections Collections, err error) {
+func (a *apiCollections) CollectionsGet(ctx context.Context, id string) (collections Collections, err error) {
 	var req *http.Request
 	rel := "collections/" + url.QueryEscape(id)
 	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
@@ -112,7 +112,7 @@ func (a *APICollections) CollectionsGet(ctx context.Context, id string) (collect
 	return
 }
 
-func (a *APICollections) CollectionsList(ctx context.Context) (collections Collections, err error) {
+func (a *apiCollections) CollectionsList(ctx context.Context) (collections Collections, err error) {
 	var req *http.Request
 	if req, err = a.api.NewRequest("GET", "collections", nil); err != nil {
 		return

@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type APIProfile struct {
+type apiProfile struct {
 	api *apiV3
 }
 
@@ -63,7 +63,7 @@ func (a Profile) String() string {
 	return string(e)
 }
 
-func (a *APIProfile) ProfileGet(ctx context.Context) (p *Profile, err error) {
+func (a *apiProfile) ProfileGet(ctx context.Context) (p *Profile, err error) {
 	var req *http.Request
 	if req, err = a.api.NewRequest("GET", "profile", nil); err != nil {
 		return nil, err
@@ -76,6 +76,6 @@ func (a *APIProfile) ProfileGet(ctx context.Context) (p *Profile, err error) {
 	return p, nil
 }
 
-// func (a *APIProfile) Update() (*Profile, *Response, error) {
+// func (a *apiProfile) Update() (*Profile, *Response, error) {
 // 	return nil, nil, nil
 // }

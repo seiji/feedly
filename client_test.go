@@ -17,7 +17,7 @@ func (fn RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 
 func NewTestClient(expected interface{}) *http.Client {
 	return &http.Client{
-		Transport: RoundTripFunc(func(req *http.Request) *http.Response {
+		Transport: RoundTripFunc(func(_ *http.Request) *http.Response {
 			b, _ := json.Marshal(expected)
 			return &http.Response{
 				Status:           "",
