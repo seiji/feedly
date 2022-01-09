@@ -1,11 +1,15 @@
 name: "Tags"
+
 on:
   workflow_run:
     workflows:
-      - "Test"
+      - Test
     branches: main
     types:
-      - "completed"
+      - completed
+  workflow_dispatch:
+    branches:
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,15 +17,16 @@ jobs:
     outputs:
       tag: ${{ steps.tagging.outputs.new_tag }}
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: '0'
-    - name: Bump version and push tag
-      uses: anothrNick/github-tag-action@1.36.0
-      id: tagging
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        WITH_V: true
-        RELEASE_BRANCHES: main
-        DEFAULT_BUMP: minor
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.36.0
+        id: tagging
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          RELEASE_BRANCHES: main
+          DEFAULT_BUMP: minor
 
