@@ -32,6 +32,66 @@ func TestCollectionsCreate(t *testing.T) {
 	assert.Equal(t, 1, len(collections))
 }
 
+func TestCollectionsPut(t *testing.T) {
+	expected := Feeds{{
+		ContentType:         "",
+		Description:         "",
+		EstimatedEngagement: 0,
+		FeedID:              "feed/http://feeds.feedburner.com/design-milk",
+		IconURL:             "",
+		ID:                  "feed/http://feeds.feedburner.com/design-milk",
+		Language:            "",
+		Partial:             false,
+		Subscribers:         0,
+		Title:               "",
+		Topics:              []string{},
+		Updated:             0,
+		Velocity:            0,
+		VisualURL:           "",
+		Website:             "",
+	}}
+	client := NewTestClient(expected)
+	api := NewAPI(client)
+	ctx := context.Background()
+	feeds, err := api.CollectionsFeedsPut(ctx, collectionID, CollectionFeedCreate{
+		ID:    "feed/http://feeds.feedburner.com/design-milk",
+		Title: "",
+	})
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(feeds))
+}
+
+func TestCollectionsMPut(t *testing.T) {
+	expected := Feeds{{
+		ContentType:         "",
+		Description:         "",
+		EstimatedEngagement: 0,
+		FeedID:              "feed/http://feeds.feedburner.com/design-milk",
+		IconURL:             "",
+		ID:                  "feed/http://feeds.feedburner.com/design-milk",
+		Language:            "",
+		Partial:             false,
+		Subscribers:         0,
+		Title:               "",
+		Topics:              []string{},
+		Updated:             0,
+		Velocity:            0,
+		VisualURL:           "",
+		Website:             "",
+	}}
+	client := NewTestClient(expected)
+	api := NewAPI(client)
+	ctx := context.Background()
+	feeds, err := api.CollectionsFeedsMPut(ctx, collectionID, CollectionFeedCreates{
+		{
+			ID:    "feed/http://feeds.feedburner.com/design-milk",
+			Title: "",
+		},
+	})
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(feeds))
+}
+
 func TestCollectionsDelete(t *testing.T) {
 	client := NewTestClient(struct{}{})
 	api := NewAPI(client)
