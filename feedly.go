@@ -34,36 +34,71 @@ const (
 type GlobalResource int
 
 const (
-	GlobalMust GlobalResource = 1 << iota
-	GlobalAll
-	GlobalUncategorized
-	GlobalRead
-	GlobalSaved
+	GlobalCategoryAll GlobalResource = 1 << iota
+	GlobalCategoryUncategorized
+	GlobalCategoryMust
+	GlobalTagRead
+	GlobalTagSaved
+	GlobalTagAll
+	GlobalTagAnnotated
+	GlobalPriorityAll
 )
 
-func (t GlobalResource) String() string {
-	switch t {
-	case GlobalMust:
-		return "user/%s/category/global.must"
-	case GlobalAll:
+func (r GlobalResource) Format() string {
+	switch r {
+	case GlobalCategoryAll:
 		return "user/%s/category/global.all"
-	case GlobalUncategorized:
+	case GlobalCategoryUncategorized:
 		return "user/%s/category/global.uncategorized"
-	case GlobalRead:
+	case GlobalCategoryMust:
+		return "user/%s/category/global.must"
+	case GlobalTagRead:
 		return "user/%s/tag/global.read"
-	case GlobalSaved:
+	case GlobalTagSaved:
 		return "user/%s/tag/global.saved"
+	case GlobalTagAll:
+		return "user/%s/tag/global.all"
+	case GlobalTagAnnotated:
+		return "user/%s/tag/global.annotated"
+	case GlobalPriorityAll:
+		return "user/%s/priority/global.all"
 	}
 	return ""
 }
 
-type ResourceType int
+func (r GlobalResource) ID(userID string) string {
+	return fmt.Sprintf(r.Format(), userID)
+}
+
+type Resource int
 
 const (
-	ResourceFeed ResourceType = 1 << iota
+	ResourceFeed Resource = 1 << iota
 	ResourceCategory
 	ResourceTag
+	ResourcePriority
+	ResourceMeme
 )
+
+func (r Resource) Format() string {
+	switch r {
+	case ResourceFeed:
+		return "feed/%s"
+	case ResourceCategory:
+		return "user/%s/category/%s"
+	case ResourceTag:
+		return "user/%s/tag/%s"
+	case ResourcePriority:
+		return "user/%s/priority/%s"
+	case ResourceMeme:
+		return "topic/%s/meme/%s"
+	}
+	return ""
+}
+
+func (r Resource) ID(ids []interface{}) (id string) {
+	return fmt.Sprintf(r.Format(), ids...)
+}
 
 type API interface {
 	CollectionsCreate(context.Context, *CollectionCreate) (Collections, error)
@@ -79,6 +114,11 @@ type API interface {
 	MarkersCounts(context.Context) (*Marker, error)
 	MarkersReads(context.Context, *MarkersReadsOptions) (*MarkersReads, error)
 	ProfileGet(context.Context) (*Profile, error)
+	PrioritiesList(context.Context, bool) (Priorities, error)
+	PrioritiesDelete(context.Context, string, bool) error
+	PrioritiesPut(context.Context, PriorityCreate) (Priorities, error)
+	PrioritiesUpdate(context.Context, PriorityUpdate) (Priorities, error)
+	// PrioritiesMPut(context.Context, bool) (Priorities, error)
 	StreamsContents(context.Context, string, *StreamOptions) (*StreamContents, error)
 	StreamsIDs(context.Context, string, *StreamOptions) (*StreamIDs, error)
 	SubscriptionsGet(context.Context) (Subscriptions, error)
@@ -95,6 +135,7 @@ type apiV3 struct {
 	*apiEntries
 	*apiFeeds
 	*apiMarkers
+	*apiPriorities
 	*apiProfile
 	*apiStreams
 	*apiSubscriptions
@@ -110,22 +151,6 @@ type rate struct {
 type response struct {
 	response *http.Response
 	rate     *rate
-}
-
-func GlobalResourceID(t GlobalResource, userID string) string {
-	return fmt.Sprintf(t.String(), userID)
-}
-
-func ResourceID(t ResourceType, userID, identifier string) (id string) {
-	switch t {
-	case ResourceFeed:
-		id = fmt.Sprintf("feed/%s", identifier)
-	case ResourceCategory:
-		id = fmt.Sprintf("user/%s/category/%s", userID, identifier)
-	case ResourceTag:
-		id = fmt.Sprintf("user/%s/tag/%s", userID, identifier)
-	}
-	return
 }
 
 func NewAPI(client *http.Client) API {
@@ -144,6 +169,7 @@ func NewAPI(client *http.Client) API {
 		apiEntries:       &apiEntries{},
 		apiFeeds:         &apiFeeds{},
 		apiMarkers:       &apiMarkers{},
+		apiPriorities:    &apiPriorities{},
 		apiProfile:       &apiProfile{},
 		apiStreams:       &apiStreams{},
 		apiSubscriptions: &apiSubscriptions{},
@@ -153,6 +179,7 @@ func NewAPI(client *http.Client) API {
 	api.apiEntries = &apiEntries{api: api}
 	api.apiFeeds = &apiFeeds{api: api}
 	api.apiMarkers = &apiMarkers{api: api}
+	api.apiPriorities = &apiPriorities{api: api}
 	api.apiProfile = &apiProfile{api: api}
 	api.apiTags = &apiTags{api: api}
 	api.apiStreams = &apiStreams{api: api}
@@ -249,9 +276,7 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*response, error) {
 		}
 		var b []byte
 		if b, err = ioutil.ReadFile(p); err == nil {
-			res = &http.Response{
-				Body: ioutil.NopCloser(bytes.NewBuffer(b)),
-			}
+			res = &http.Response{Body: ioutil.NopCloser(bytes.NewBuffer(b))}
 		}
 	}
 	if res == nil {
@@ -274,7 +299,18 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*response, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode >= http.StatusBadRequest {
-		return nil, fmt.Errorf("bad response status code %d", res.StatusCode)
+		var resBody string
+		var b []byte
+		if b, err = ioutil.ReadAll(res.Body); err == nil {
+			resBody = string(b)
+		}
+		return nil, fmt.Errorf("%s %s %s\nhost: %s\n\n%s %d %s\n%s",
+			req.Method, req.URL.Path, req.Proto,
+			req.Host,
+			res.Proto, res.StatusCode,
+			http.StatusText(res.StatusCode),
+			resBody,
+		)
 	}
 	response := newResponse(res)
 
@@ -294,8 +330,7 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*response, error) {
 			}
 			// fmt.Printf("%v", v)
 		}
-	} else {
-		// Debug
+	} else { // Debug
 		var b []byte
 		if b, err = ioutil.ReadAll(res.Body); err == nil {
 			log.Println(string(b))
