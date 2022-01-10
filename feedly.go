@@ -67,6 +67,8 @@ const (
 
 type API interface {
 	CollectionsCreate(context.Context, *CollectionCreate) (Collections, error)
+	CollectionsFeedsPut(context.Context, string, CollectionFeedCreate) (Feeds, error)
+	CollectionsFeedsMPut(context.Context, string, CollectionFeedCreates) (Feeds, error)
 	CollectionsFeedsDelete(context.Context, string, string) error
 	CollectionsFeedsMDelete(context.Context, string, CollectionFeedDeletes) error
 	CollectionsGet(context.Context, string) (Collections, error)

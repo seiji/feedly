@@ -53,6 +53,8 @@ type CollectionFeedCreate struct {
 	Title string `json:"title,omitempty"`
 }
 
+type CollectionFeedCreates []CollectionFeedCreate
+
 type CollectionFeedDelete struct {
 	ID string `json:"id"`
 }
@@ -68,6 +70,36 @@ func (a *apiCollections) CollectionsCreate(ctx context.Context, param *Collectio
 		return
 	}
 	if _, err = a.api.Do(req, &collections); err != nil {
+		return
+	}
+	return
+}
+
+func (a *apiCollections) CollectionsFeedsPut(ctx context.Context, id string, param CollectionFeedCreate) (
+	feeds Feeds,
+	err error,
+) {
+	var req *http.Request
+	rel := "collections/" + url.QueryEscape(id) + "/feeds"
+	if req, err = a.api.NewRequest(ctx, "PUT", rel, param); err != nil {
+		return
+	}
+	if _, err = a.api.Do(req, &feeds); err != nil {
+		return
+	}
+	return
+}
+
+func (a *apiCollections) CollectionsFeedsMPut(ctx context.Context, id string, params CollectionFeedCreates) (
+	feeds Feeds,
+	err error,
+) {
+	var req *http.Request
+	rel := "collections/" + url.QueryEscape(id) + "/feeds/.mput"
+	if req, err = a.api.NewRequest(ctx, "POST", rel, params); err != nil {
+		return
+	}
+	if _, err = a.api.Do(req, &feeds); err != nil {
 		return
 	}
 	return
