@@ -48,10 +48,9 @@ func (a Feeds) String() string {
 	return "[" + strings.Join(s, ",") + "]"
 }
 
-func (a *apiFeeds) FeedsGet(ctx context.Context, feedID string) (feed *Feed, err error) {
+func (a *apiFeeds) FeedsGet(ctx context.Context, id string) (feed *Feed, err error) {
 	var req *http.Request
-	rel := "feeds/" + url.QueryEscape(feedID)
-	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
+	if req, err = a.api.NewRequest(ctx, "GET", "feeds/"+url.QueryEscape(id), nil); err != nil {
 		return nil, err
 	}
 	feed = new(Feed)
@@ -61,10 +60,9 @@ func (a *apiFeeds) FeedsGet(ctx context.Context, feedID string) (feed *Feed, err
 	return feed, nil
 }
 
-func (a *apiFeeds) FeedsMGet(ctx context.Context, feedIDs []string) (feeds Feeds, err error) {
+func (a *apiFeeds) FeedsMGet(ctx context.Context, ids []string) (feeds Feeds, err error) {
 	var req *http.Request
-	rel := "feeds/.mget"
-	if req, err = a.api.NewRequest("POST", rel, feedIDs); err != nil {
+	if req, err = a.api.NewRequest(ctx, "POST", "feeds/.mget", ids); err != nil {
 		return nil, err
 	}
 	if _, err = a.api.Do(req, &feeds); err != nil {

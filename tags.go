@@ -37,7 +37,7 @@ func (a Tags) String() string {
 
 func (a *apiTags) TagsList(ctx context.Context) (tags Tags, err error) {
 	var req *http.Request
-	if req, err = a.api.NewRequest("GET", "tags", nil); err != nil {
+	if req, err = a.api.NewRequest(ctx, "GET", "tags", nil); err != nil {
 		return nil, err
 	}
 	if _, err = a.api.Do(req, &tags); err != nil {

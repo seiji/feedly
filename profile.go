@@ -65,17 +65,16 @@ func (a Profile) String() string {
 
 func (a *apiProfile) ProfileGet(ctx context.Context) (p *Profile, err error) {
 	var req *http.Request
-	if req, err = a.api.NewRequest("GET", "profile", nil); err != nil {
+	if req, err = a.api.NewRequest(ctx, "GET", "profile", nil); err != nil {
 		return nil, err
 	}
 	p = new(Profile)
-	// var res *Response
 	if _, err = a.api.Do(req, p); err != nil {
 		return nil, err
 	}
 	return p, nil
 }
 
-// func (a *apiProfile) Update() (*Profile, *Response, error) {
-// 	return nil, nil, nil
+// func (a *apiProfile) Update(ctx context.Context) (p *Profile, err error) {
+// 	return
 // }

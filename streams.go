@@ -56,7 +56,7 @@ func (a *apiStreams) StreamsContents(ctx context.Context, id string, opt *Stream
 		return
 	}
 	var req *http.Request
-	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
+	if req, err = a.api.NewRequest(ctx, "GET", rel, nil); err != nil {
 		return
 	}
 	streamContents = new(StreamContents)
@@ -75,7 +75,7 @@ func (a *apiStreams) StreamsIDs(ctx context.Context, id string, opt *StreamOptio
 		return
 	}
 	var req *http.Request
-	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
+	if req, err = a.api.NewRequest(ctx, "GET", rel, nil); err != nil {
 		return
 	}
 	streamIDs = new(StreamIDs)

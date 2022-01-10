@@ -46,7 +46,7 @@ func (a Subscriptions) String() string {
 
 func (a *apiSubscriptions) SubscriptionsGet(ctx context.Context) (subscriptions Subscriptions, err error) {
 	var req *http.Request
-	if req, err = a.api.NewRequest("GET", "subscriptions", nil); err != nil {
+	if req, err = a.api.NewRequest(ctx, "GET", "subscriptions", nil); err != nil {
 		return nil, err
 	}
 

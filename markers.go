@@ -54,7 +54,7 @@ type MarkersReadsOptions struct {
 
 func (a *apiMarkers) MarkersCounts(ctx context.Context) (marker *Marker, err error) {
 	var req *http.Request
-	if req, err = a.api.NewRequest("GET", "markers/counts", nil); err != nil {
+	if req, err = a.api.NewRequest(ctx, "GET", "markers/counts", nil); err != nil {
 		return
 	}
 	marker = new(Marker)
@@ -73,7 +73,7 @@ func (a *apiMarkers) MarkersReads(ctx context.Context, opt *MarkersReadsOptions)
 	if rel, err = addOptions(rel, opt); err != nil {
 		return
 	}
-	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
+	if req, err = a.api.NewRequest(ctx, "GET", rel, nil); err != nil {
 		return
 	}
 	markersReads = new(MarkersReads)

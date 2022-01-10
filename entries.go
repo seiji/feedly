@@ -73,30 +73,24 @@ func (a Entries) String() string {
 	return "[" + strings.Join(s, ",") + "]"
 }
 
-func (a *apiEntries) EntriesGet(ctx context.Context, entryID string) (entries Entries, err error) {
+func (a *apiEntries) EntriesGet(ctx context.Context, id string) (entries Entries, err error) {
 	var req *http.Request
-	if req, err = a.api.NewRequest("GET", "entries/"+entryID, nil); err != nil {
-		return nil, err
+	if req, err = a.api.NewRequest(ctx, "GET", "entries/"+id, nil); err != nil {
+		return
 	}
-	if _, err := a.api.Do(req, &entries); err != nil {
-		return nil, err
+	if _, err = a.api.Do(req, &entries); err != nil {
+		return
 	}
-	return entries, nil
+	return
 }
 
-func (a *apiEntries) MGet(entryIds []string) ([]Entry, *Response, error) {
-	rel := "entries/.mget"
-	req, err := a.api.NewRequest("POST", rel, entryIds)
-	if err != nil {
-		return nil, nil, err
+func (a *apiEntries) MGet(ctx context.Context, ids []string) (entries Entries, err error) {
+	var req *http.Request
+	if req, err = a.api.NewRequest(ctx, "POST", "entries/.mget", ids); err != nil {
+		return
 	}
-
-	entries := new([]Entry)
-
-	res, err := a.api.Do(req, entries)
-	if err != nil {
-		return nil, res, err
+	if _, err = a.api.Do(req, &entries); err != nil {
+		return
 	}
-
-	return *entries, res, nil
+	return
 }

@@ -89,7 +89,6 @@ type apiV3 struct {
 	UserAgent  string
 	OAuthToken string
 	IsCache    bool
-	// API
 	*apiCollections
 	*apiEntries
 	*apiFeeds
@@ -100,15 +99,15 @@ type apiV3 struct {
 	*apiTags
 }
 
-type Rate struct {
-	Count int
-	Limit int
-	Reset time.Time
+type rate struct {
+	count int
+	limit int
+	reset time.Time
 }
 
-type Response struct {
+type response struct {
 	response *http.Response
-	Rate     *Rate
+	rate     *rate
 }
 
 func GlobalResourceID(t GlobalResource, userID string) string {
@@ -127,17 +126,17 @@ func ResourceID(t ResourceType, userID, identifier string) (id string) {
 	return
 }
 
-func NewAPI(httpClient *http.Client) API {
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+func NewAPI(client *http.Client) API {
+	if client == nil {
+		client = http.DefaultClient
 	}
 	baseURL, _ := url.Parse(baseURLCloud)
 	baseURL.Path = version
 	api := &apiV3{
-		client:           httpClient,
+		client:           client,
 		BaseURL:          baseURL,
 		UserAgent:        "",
-		OAuthToken:       "",
+		OAuthToken:       os.Getenv("FEEDLY_ACCESS_TOKEN"),
 		IsCache:          false,
 		apiCollections:   &apiCollections{},
 		apiEntries:       &apiEntries{},
@@ -148,9 +147,6 @@ func NewAPI(httpClient *http.Client) API {
 		apiSubscriptions: &apiSubscriptions{},
 		apiTags:          &apiTags{},
 	}
-	api.OAuthToken = os.Getenv("FEEDLY_ACCESS_TOKEN")
-
-	api.IsCache = false
 	api.apiCollections = &apiCollections{api: api}
 	api.apiEntries = &apiEntries{api: api}
 	api.apiFeeds = &apiFeeds{api: api}
@@ -163,7 +159,7 @@ func NewAPI(httpClient *http.Client) API {
 	return api
 }
 
-func (c *apiV3) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
+func (c *apiV3) NewRequest(ctx context.Context, method, urlStr string, body interface{}) (*http.Request, error) {
 	rel, err := url.Parse(version + "/" + urlStr)
 	if err != nil {
 		return nil, err
@@ -193,8 +189,8 @@ func (c *apiV3) NewRequest(method, urlStr string, body interface{}) (*http.Reque
 			return nil, err
 		}
 	}
-	req, err := http.NewRequest(method, u.String(), buf)
-	// fmt.Printf("%s", buf)
+
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), buf)
 	if err != nil {
 		return nil, err
 	}
@@ -208,13 +204,13 @@ func (c *apiV3) NewRequest(method, urlStr string, body interface{}) (*http.Reque
 	return req, nil
 }
 
-func newResponse(res *http.Response) *Response {
-	r := &Response{response: res, Rate: &Rate{}}
+func newResponse(res *http.Response) *response {
+	r := &response{response: res, rate: &rate{}}
 	if count := res.Header.Get(headerRateCount); count != "" {
-		r.Rate.Count, _ = strconv.Atoi(count)
+		r.rate.count, _ = strconv.Atoi(count)
 	}
 	if limit := res.Header.Get(headerRateLimit); limit != "" {
-		r.Rate.Limit, _ = strconv.Atoi(limit)
+		r.rate.limit, _ = strconv.Atoi(limit)
 	}
 	if reset := res.Header.Get(headerRateReset); reset != "" {
 		const base = 10
@@ -222,15 +218,14 @@ func newResponse(res *http.Response) *Response {
 		if v, _ := strconv.ParseInt(reset, base, bitSize); v != 0 {
 			if t, err := time.Parse(http.TimeFormat, res.Header.Get("Date")); err == nil {
 				const num = 1000000000
-				r.Rate.Reset = t.Add(time.Duration(v * num))
+				r.rate.reset = t.Add(time.Duration(v * num))
 			}
 		}
 	}
-
 	return r
 }
 
-func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
+func (c *apiV3) Do(req *http.Request, v interface{}) (*response, error) {
 	var rawPath, dir, base, q string
 	if rawPath = req.URL.RawPath; rawPath == "" {
 		rawPath = req.URL.Path
@@ -307,22 +302,19 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*Response, error) {
 	return response, err
 }
 
-func addOptions(s string, opt interface{}) (string, error) {
+func addOptions(s string, opt interface{}) (us string, err error) {
 	v := reflect.ValueOf(opt)
 	if v.Kind() == reflect.Ptr && v.IsNil() {
 		return s, nil
 	}
-
-	u, err := url.Parse(s)
-	if err != nil {
+	var u *url.URL
+	if u, err = url.Parse(s); err != nil {
 		return s, err
 	}
-
-	qs, err := query.Values(opt)
-	if err != nil {
+	var qs url.Values
+	if qs, err = query.Values(opt); err != nil {
 		return s, err
 	}
-
 	u.RawQuery = qs.Encode()
 	return u.String(), nil
 }

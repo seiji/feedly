@@ -64,8 +64,7 @@ func (a *apiCollections) CollectionsCreate(ctx context.Context, param *Collectio
 	err error,
 ) {
 	var req *http.Request
-	rel := "collections"
-	if req, err = a.api.NewRequest("POST", rel, param); err != nil {
+	if req, err = a.api.NewRequest(ctx, "POST", "collections", param); err != nil {
 		return
 	}
 	if _, err = a.api.Do(req, &collections); err != nil {
@@ -77,7 +76,7 @@ func (a *apiCollections) CollectionsCreate(ctx context.Context, param *Collectio
 func (a *apiCollections) CollectionsFeedsDelete(ctx context.Context, id, feedID string) (err error) {
 	var req *http.Request
 	rel := "collections/" + url.QueryEscape(id) + "/feeds/" + url.QueryEscape(feedID)
-	if req, err = a.api.NewRequest("DELETE", rel, nil); err != nil {
+	if req, err = a.api.NewRequest(ctx, "DELETE", rel, nil); err != nil {
 		return
 	}
 	if _, err = a.api.Do(req, ioutil.Discard); err != nil {
@@ -91,7 +90,7 @@ func (a *apiCollections) CollectionsFeedsMDelete(ctx context.Context, id string,
 ) {
 	var req *http.Request
 	rel := "collections/" + url.QueryEscape(id) + "/feeds/.mdelete"
-	if req, err = a.api.NewRequest("DELETE", rel, param); err != nil {
+	if req, err = a.api.NewRequest(ctx, "DELETE", rel, param); err != nil {
 		return
 	}
 	if _, err = a.api.Do(req, ioutil.Discard); err != nil {
@@ -103,7 +102,7 @@ func (a *apiCollections) CollectionsFeedsMDelete(ctx context.Context, id string,
 func (a *apiCollections) CollectionsGet(ctx context.Context, id string) (collections Collections, err error) {
 	var req *http.Request
 	rel := "collections/" + url.QueryEscape(id)
-	if req, err = a.api.NewRequest("GET", rel, nil); err != nil {
+	if req, err = a.api.NewRequest(ctx, "GET", rel, nil); err != nil {
 		return
 	}
 	if _, err = a.api.Do(req, &collections); err != nil {
@@ -114,7 +113,7 @@ func (a *apiCollections) CollectionsGet(ctx context.Context, id string) (collect
 
 func (a *apiCollections) CollectionsList(ctx context.Context) (collections Collections, err error) {
 	var req *http.Request
-	if req, err = a.api.NewRequest("GET", "collections", nil); err != nil {
+	if req, err = a.api.NewRequest(ctx, "GET", "collections", nil); err != nil {
 		return
 	}
 	if _, err = a.api.Do(req, &collections); err != nil {
