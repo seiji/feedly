@@ -118,7 +118,6 @@ type API interface {
 	PrioritiesDelete(context.Context, string, bool) error
 	PrioritiesPut(context.Context, PriorityCreate) (Priorities, error)
 	PrioritiesUpdate(context.Context, PriorityUpdate) (Priorities, error)
-	// PrioritiesMPut(context.Context, bool) (Priorities, error)
 	StreamsContents(context.Context, string, *StreamOptions) (*StreamContents, error)
 	StreamsIDs(context.Context, string, *StreamOptions) (*StreamIDs, error)
 	SubscriptionsGet(context.Context) (Subscriptions, error)
@@ -254,6 +253,21 @@ func newResponse(res *http.Response) *response {
 	return r
 }
 
+func apiError(req *http.Request, res *http.Response) (err error) {
+	var resBody string
+	var b []byte
+	if b, err = ioutil.ReadAll(res.Body); err == nil {
+		resBody = string(b)
+	}
+	return fmt.Errorf("%s %s %s\nhost: %s\n\n%s %d %s\n%s",
+		req.Method, req.URL.Path, req.Proto,
+		req.Host,
+		res.Proto, res.StatusCode,
+		http.StatusText(res.StatusCode),
+		resBody,
+	)
+}
+
 func (c *apiV3) Do(req *http.Request, v interface{}) (*response, error) {
 	var rawPath, dir, base, q string
 	if rawPath = req.URL.RawPath; rawPath == "" {
@@ -299,18 +313,7 @@ func (c *apiV3) Do(req *http.Request, v interface{}) (*response, error) {
 	}
 	defer res.Body.Close()
 	if res.StatusCode >= http.StatusBadRequest {
-		var resBody string
-		var b []byte
-		if b, err = ioutil.ReadAll(res.Body); err == nil {
-			resBody = string(b)
-		}
-		return nil, fmt.Errorf("%s %s %s\nhost: %s\n\n%s %d %s\n%s",
-			req.Method, req.URL.Path, req.Proto,
-			req.Host,
-			res.Proto, res.StatusCode,
-			http.StatusText(res.StatusCode),
-			resBody,
-		)
+		return nil, apiError(req, res)
 	}
 	response := newResponse(res)
 
